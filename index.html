@@ -21,6 +21,7 @@
             font-family: 'Inter', sans-serif;
             background-color: #FDFBF8;
             color: #3f3f46;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
         }
         .chart-container {
             position: relative;
@@ -290,72 +291,74 @@
                     </ul>
 
                     <h4>Key Table: Daily Nutrition Guidelines & Race Day Fueling Plan</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Guideline / Example</th>
-                                <th>Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Daily Nutrition Guidelines (Approx. for a 70kg Runner)</strong></td>
-                                <td></td>
-                                <td>Adjust based on individual body weight and training load.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Total Calories</strong></td>
-                                <td>2000-3000 kcal base + 500-800 kcal additional on heavy training days</td>
-                                <td>To meet increased demands.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Carbohydrates</strong></td>
-                                <td>350-490g (5-7g/kg BW)</td>
-                                <td>Prioritize whole grains, fruits, vegetables, oats, rice, pasta.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Protein</strong></td>
-                                <td>112-126g (1.6-1.8g/kg BW)</td>
-                                <td>Spread intake throughout the day, including before bed. Lean meats, fish, dairy, legumes.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Fats</strong></td>
-                                <td>28-42g (0.4-0.6g/kg BW)</td>
-                                <td>Healthy fats from nuts, seeds, avocado, fatty fish (Omega-3s).</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Fluid Intake</strong></td>
-                                <td>2000-3000ml (daily) + 500-1000ml/hour of training</td>
-                                <td>Monitor urine color; weigh self before/after runs to determine sweat rate.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Race Day Fueling & Hydration Plan</strong></td>
-                                <td></td>
-                                <td>Practice all elements extensively during long training runs.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Pre-Race Meal (3-4 hours prior)</strong></td>
-                                <td>Oatmeal with banana and honey, or whole-wheat toast with jam, coffee</td>
-                                <td>Familiar, high-carb, low-fiber. Practice in training.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>During Race (per hour)</strong></td>
-                                <td>30-60g Carbohydrates (e.g., 1.5-3 gels, chews, or sports drink)</td>
-                                <td>Start early (e.g., 30-45 min in), consistent intake.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>During Race Hydration (every 15-20 min)</strong></td>
-                                <td>5-12 oz sports drink (containing sodium)</td>
-                                <td>Essential for electrolyte balance and preventing dehydration.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Post-Race Recovery (within 30-60 min)</strong></td>
-                                <td>3:1 or 4:1 Carb:Protein ratio (e.g., chocolate milk, recovery smoothie)</td>
-                                <td>Replenish glycogen, repair muscles. Include healthy fats.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Guideline / Example</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Daily Nutrition Guidelines (Approx. for a 70kg Runner)</strong></td>
+                                    <td></td>
+                                    <td>Adjust based on individual body weight and training load.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Calories</strong></td>
+                                    <td>2000-3000 kcal base + 500-800 kcal additional on heavy training days</td>
+                                    <td>To meet increased demands.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Carbohydrates</strong></td>
+                                    <td>350-490g (5-7g/kg BW)</td>
+                                    <td>Prioritize whole grains, fruits, vegetables, oats, rice, pasta.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Protein</strong></td>
+                                    <td>112-126g (1.6-1.8g/kg BW)</td>
+                                    <td>Spread intake throughout the day, including before bed. Lean meats, fish, dairy, legumes.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fats</strong></td>
+                                    <td>28-42g (0.4-0.6g/kg BW)</td>
+                                    <td>Healthy fats from nuts, seeds, avocado, fatty fish (Omega-3s).</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fluid Intake</strong></td>
+                                    <td>2000-3000ml (daily) + 500-1000ml/hour of training</td>
+                                    <td>Monitor urine color; weigh self before/after runs to determine sweat rate.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Race Day Fueling & Hydration Plan</strong></td>
+                                    <td></td>
+                                    <td>Practice all elements extensively during long training runs.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pre-Race Meal (3-4 hours prior)</strong></td>
+                                    <td>Oatmeal with banana and honey, or whole-wheat toast with jam, coffee</td>
+                                    <td>Familiar, high-carb, low-fiber. Practice in training.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>During Race (per hour)</strong></td>
+                                    <td>30-60g Carbohydrates (e.g., 1.5-3 gels, chews, or sports drink)</td>
+                                    <td>Start early (e.g., 30-45 min in), consistent intake.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>During Race Hydration (every 15-20 min)</strong></td>
+                                    <td>5-12 oz sports drink (containing sodium)</td>
+                                    <td>Essential for electrolyte balance and preventing dehydration.</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Post-Race Recovery (within 30-60 min)</strong></td>
+                                    <td>3:1 or 4:1 Carb:Protein ratio (e.g., chocolate milk, recovery smoothie)</td>
+                                    <td>Replenish glycogen, repair muscles. Include healthy fats.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div id="tab-content-strength" class="tab-content hidden">
@@ -387,57 +390,59 @@
                     </ul>
 
                     <h4>Key Table: Strength Training Schedule & Key Exercises</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Training Phase</th>
-                                <th>Frequency</th>
-                                <th>Focus / Rep Range</th>
-                                <th>Timing (relative to run)</th>
-                                <th>Monday (e.g., Lower Body)</th>
-                                <th>Wednesday (e.g., Core & Glutes)</th>
-                                <th>Friday (e.g., Full Body / Plyometrics)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Phase 1: Base (Weeks 1-3)</strong></td>
-                                <td>3x/week</td>
-                                <td>Foundational Strength, Balance, Unilateral (8-12 reps)</td>
-                                <td>Lift after easy run</td>
-                                <td>Single-Leg Calf Raises (3x10-12), Single-Leg Deadlifts (3x8-10)</td>
-                                <td>Side Plank Crunches (3x10-12/side), Glute Bridges (3x12-15)</td>
-                                <td>Single-Leg Deficit Squat (3x8-10/side), Dumbbell March (3x10-12/side)</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Phase 2: Build (Weeks 4-9)</strong></td>
-                                <td>3x/week</td>
-                                <td>Strength, Power, Bilateral (4-6 reps), Plyometrics</td>
-                                <td>Lift after hard run (Tue/Thu) or before easy run (Mon/Wed/Fri)</td>
-                                <td>Barbell Squats (3x4-6), Romanian Deadlifts (3x4-6)</td>
-                                <td>Plank variations (3x60s), Bird-Dog (3x10/side), Cable Pull-Throughs (3x8-10)</td>
-                                <td>Box Jumps (3x5-8), Medicine Ball Slams (3x8-10), Lunges (3x6-8/side)</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Phase 3: Peak/Taper (Weeks 10-14)</strong></td>
-                                <td>1-2x/week (reduced sets)</td>
-                                <td>Maintenance, Mobility (reduced reps/sets)</td>
-                                <td>Lift after easy run, or on rest day</td>
-                                <td>Light Goblet Squats (2x8), Single-Leg Calf Raises (2x10)</td>
-                                <td>Light Core Circuit (2-3 exercises, 2x10-15)</td>
-                                <td>Bodyweight Lunges (2x10/side), Mobility Drills</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Race Week (Week 14)</strong></td>
-                                <td>0</td>
-                                <td>None</td>
-                                <td>Forgo 72 hours pre-race</td>
-                                <td>Rest</td>
-                                <td>Rest</td>
-                                <td>Rest</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Training Phase</th>
+                                    <th>Frequency</th>
+                                    <th>Focus / Rep Range</th>
+                                    <th>Timing (relative to run)</th>
+                                    <th>Monday (e.g., Lower Body)</th>
+                                    <th>Wednesday (e.g., Core & Glutes)</th>
+                                    <th>Friday (e.g., Full Body / Plyometrics)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Phase 1: Base (Weeks 1-3)</strong></td>
+                                    <td>3x/week</td>
+                                    <td>Foundational Strength, Balance, Unilateral (8-12 reps)</td>
+                                    <td>Lift after easy run</td>
+                                    <td>Single-Leg Calf Raises (3x10-12), Single-Leg Deadlifts (3x8-10)</td>
+                                    <td>Side Plank Crunches (3x10-12/side), Glute Bridges (3x12-15)</td>
+                                    <td>Single-Leg Deficit Squat (3x8-10/side), Dumbbell March (3x10-12/side)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Phase 2: Build (Weeks 4-9)</strong></td>
+                                    <td>3x/week</td>
+                                    <td>Strength, Power, Bilateral (4-6 reps), Plyometrics</td>
+                                    <td>Lift after hard run (Tue/Thu) or before easy run (Mon/Wed/Fri)</td>
+                                    <td>Barbell Squats (3x4-6), Romanian Deadlifts (3x4-6)</td>
+                                    <td>Plank variations (3x60s), Bird-Dog (3x10/side), Cable Pull-Throughs (3x8-10)</td>
+                                    <td>Box Jumps (3x5-8), Medicine Ball Slams (3x8-10), Lunges (3x6-8/side)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Phase 3: Peak/Taper (Weeks 10-14)</strong></td>
+                                    <td>1-2x/week (reduced sets)</td>
+                                    <td>Maintenance, Mobility (reduced reps/sets)</td>
+                                    <td>Lift after easy run, or on rest day</td>
+                                    <td>Light Goblet Squats (2x8), Single-Leg Calf Raises (2x10)</td>
+                                    <td>Light Core Circuit (2-3 exercises, 2x10-15)</td>
+                                    <td>Bodyweight Lunges (2x10/side), Mobility Drills</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Race Week (Week 14)</strong></td>
+                                    <td>0</td>
+                                    <td>None</td>
+                                    <td>Forgo 72 hours pre-race</td>
+                                    <td>Rest</td>
+                                    <td>Rest</td>
+                                    <td>Rest</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div id="tab-content-race" class="tab-content hidden">
@@ -638,7 +643,8 @@
             function formatMinutesToHMS(totalMinutes) {
                 const hours = Math.floor(totalMinutes / 60);
                 const minutes = Math.floor(totalMinutes % 60);
-                return `${hours.toString().padStart(1, '0')}:${minutes.toString().padStart(2, '0')}:00`;
+                const seconds = Math.round((totalMinutes % 1) * 60); // In case of non-integer minutes
+                return `${hours.toString().padStart(1, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }
 
             // Function to convert seconds per unit to MM:SS format
@@ -652,19 +658,28 @@
             function calculatePaces(targetMarathonMinutes) {
                 const totalMarathonSeconds = targetMarathonMinutes * 60;
 
+                // Marathon distance in KM and Miles
+                const marathonKm = 42.195;
+                const marathonMiles = 26.219;
+
                 // Calculate target Marathon Pace in seconds per KM and per Mile
-                const mpSecPerKm = totalMarathonSeconds / 42.195;
-                const mpSecPerMile = totalMarathonSeconds / 26.219;
+                const mpSecPerKm = totalMarathonSeconds / marathonKm;
+                const mpSecPerMile = totalMarathonSeconds / marathonMiles;
 
-                // Define pace differentials in seconds (relative to MP)
-                // These are typical relationships, can be fine-tuned
-                const easyDiffKm = 47; // ~1:15/mile slower = 47s/km slower
-                const tempoDiffKm = -9; // ~0:15/mile faster = 9s/km faster
-                const intervalDiffKm = -22; // ~0:35/mile faster = 22s/km faster
+                // Define pace differentials in seconds relative to MP
+                // These are typical relationships, can be fine-tuned based on runner's profile
+                // Easy: MP + 45-75 seconds/mile (28-47 seconds/km)
+                // Tempo: MP - 10-20 seconds/mile (6-12 seconds/km)
+                // Interval: MP - 30-50 seconds/mile (18-31 seconds/km)
+                
+                // Using averages for now, can be made more dynamic if needed
+                const easyDiffSecKm = 38; // ~60s/mile slower
+                const tempoDiffSecKm = -9; // ~15s/mile faster
+                const intervalDiffSecKm = -25; // ~40s/mile faster
 
-                const easyDiffMile = 75; // 1:15/mile slower
-                const tempoDiffMile = -15; // 0:15/mile faster
-                const intervalDiffMile = -35; // 0:35/mile faster
+                const easyDiffSecMile = 60; 
+                const tempoDiffSecMile = -15; 
+                const intervalDiffSecMile = -40; 
 
                 return {
                     marathon: {
@@ -672,16 +687,16 @@
                         mi: formatSecondsToMMSS(mpSecPerMile)
                     },
                     easy: {
-                        km: formatSecondsToMMSS(mpSecPerKm + easyDiffKm),
-                        mi: formatSecondsToMMSS(mpSecPerMile + easyDiffMile)
+                        km: formatSecondsToMMSS(mpSecPerKm + easyDiffSecKm),
+                        mi: formatSecondsToMMSS(mpSecPerMile + easyDiffSecMile)
                     },
                     tempo: {
-                        km: formatSecondsToMMSS(mpSecPerKm + tempoDiffKm),
-                        mi: formatSecondsToMMSS(mpSecPerMile + tempoDiffMile)
+                        km: formatSecondsToMMSS(mpSecPerKm + tempoDiffSecKm),
+                        mi: formatSecondsToMMSS(mpSecPerMile + tempoDiffSecMile)
                     },
                     interval: {
-                        km: formatSecondsToMMSS(mpSecPerKm + intervalDiffKm),
-                        mi: formatSecondsToMMSS(mpSecPerMile + intervalDiffMile)
+                        km: formatSecondsToMMSS(mpSecPerKm + intervalDiffSecKm),
+                        mi: formatSecondsToMMSS(mpSecPerMile + intervalDiffSecMile)
                     }
                 };
             }
@@ -754,7 +769,10 @@
 
                 // Calculate the difference in days to add to startDate to get to planDayName's date within that week
                 let daysToAdd = planDayOfWeekIndex - startDayOfWeekIndex;
-                if (daysToAdd < 0) { // If the planDayName is earlier in the week than startDate's day, add 7 days
+                // Ensure daysToAdd is positive and points to the correct day within the week
+                // Example: if startDate is a Wednesday (3) and planDayName is Monday (1), daysToAdd is -2.
+                // We want to go to the *next* Monday, so add 7: -2 + 7 = 5 days.
+                if (daysToAdd < 0) { 
                     daysToAdd += 7;
                 }
                 planDate.setDate(startDate.getDate() + daysToAdd);
