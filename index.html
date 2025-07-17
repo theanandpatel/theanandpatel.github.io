@@ -320,7 +320,7 @@
                                 <tr>
                                     <td><strong>Protein</strong></td>
                                     <td>112-126g (1.6-1.8g/kg BW)</td>
-                                    <td>Spread intake throughout the day, including before bed. Lean meats, fish, dairy, legumes.</td>
+                                    <td>Spread intake throughout the day, including a portion before bed. Lean meats, fish, dairy, legumes.</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Fats</strong></td>
@@ -376,7 +376,7 @@
                     <h4>Recommended Exercises and Progression through Training Phases</h4>
                     <p>The strength training program should evolve throughout the training cycle, aligning with the specific demands of each phase. Emphasis should be placed on exercises that directly benefit running mechanics, injury prevention, and power generation. Focusing on core and single-leg exercises is particularly beneficial for runners.</p>
                     <ul>
-                        <li><strong>Phase 1: Re-establishing Base (Weeks 1-3):</strong> During this initial phase, the focus should be on building foundational strength, improving balance and stability, and addressing any muscular imbalances that could predispose to injury. This involves higher volume lifting, typically in the 8-12 repetition range. Key exercises should emphasize unilateral (single-leg) movements, such as:
+                        <li><strong>Phase 1: Reestablishing Base (Weeks 1-3):</strong> During this initial phase, the focus should be on building foundational strength, improving balance and stability, and addressing any muscular imbalances that could predispose to injury. This involves higher volume lifting, typically in the 8-12 repetition range. Key exercises should emphasize unilateral (single-leg) movements, such as:
                             <ul>
                                 <li>Single-Leg Calf Raises (3x10-12)</li>
                                 <li>Single-Leg Deadlifts (3x8-10)</li>
@@ -601,7 +601,7 @@
                 { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.', baseKm: 10},
                 { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
                 { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.', baseKm: 8},
-                { day: 'Sun', type: 'Long Run', details: '32km (20mi) with 10-13km (6-8mi) @ MP.', baseKm: 32}
+                { day: 'Sun', type: 'Long Run', details: '32km (20mi) with 10-13km @ MP.', baseKm: 32}
             ]},
             // Week 11: Sep 29 - Oct 5
             { week: 11, phase: 'Taper & Race', dates: 'Sep 29 - Oct 5', schedule: [
@@ -627,6 +627,9 @@
 
         // This will hold the currently scaled training plan
         let currentTrainingPlan = [];
+
+        // Global scaling factor, derived from the slider
+        let globalScalingFactor = 1; // Default to 1 (2:50 target)
 
         document.addEventListener('DOMContentLoaded', () => {
             const unitToggle = document.getElementById('unitToggle');
@@ -784,38 +787,42 @@
                 }
             }
 
-            // Function to update details string with new scaled km/mi
-            function updateDetailsString(originalDetails, originalKm, scaledKm) {
-                // Ensure originalKm is a number for calculation
-                originalKm = parseFloat(originalKm);
-
-                const originalMi = (originalKm * MILE_CONVERSION);
-                const scaledMi = (scaledKm * MILE_CONVERSION);
-
-                let newDetails = originalDetails;
-
-                // Regex to find patterns like "8km (5mi)", "8km", "5mi" and replace them
-                // This regex is robust enough to handle decimals
-                const kmMiPattern = /(\d+(\.\d+)?)\s*km\s*\((\d+(\.\d+)?)\s*mi\)/;
-                const kmPattern = /(\d+(\.\d+)?)\s*km/;
-                const miPattern = /(\d+(\.\d+)?)\s*mi/;
-
-                if (kmMiPattern.test(newDetails)) {
-                    newDetails = newDetails.replace(kmMiPattern, `${scaledKm.toFixed(1)}km (${scaledMi.toFixed(1)}mi)`);
-                } else if (kmPattern.test(newDetails)) {
-                    newDetails = newDetails.replace(kmPattern, `${scaledKm.toFixed(1)}km`);
-                } else if (miPattern.test(newDetails)) {
-                    newDetails = newDetails.replace(miPattern, `${scaledMi.toFixed(1)}mi`);
+            // Function to format the details string for display
+            function formatDayDetails(originalDetails, baseKmForDay, isMiles, scalingFactor) {
+                // If baseKmForDay is 0 (rest/gym day without running distance), return original details
+                if (baseKmForDay === 0) {
+                    return originalDetails;
                 }
-                
-                return newDetails;
+
+                const scaledKm = Math.max(0, baseKmForDay * scalingFactor);
+                const scaledMi = scaledKm * MILE_CONVERSION;
+
+                let distanceString;
+                if (isMiles) {
+                    distanceString = `${Number.isInteger(scaledMi) ? scaledMi.toFixed(0) : scaledMi.toFixed(1)}mi`;
+                } else {
+                    distanceString = `${Number.isInteger(scaledKm) ? scaledKm.toFixed(0) : scaledKm.toFixed(1)}km`;
+                }
+
+                // Regex to find and replace any existing distance patterns in the original string
+                // This pattern looks for "Xkm (Ymi)", "Xkm", or "Ymi"
+                const distancePattern = /(\d+(\.\d+)?)\s*km\s*(\((\d+(\.\d+)?)\s*mi\))?|(\d+(\.\d+)?)\s*mi\s*(\((\d+(\.\d+)?)\s*km\))?/g;
+
+                // Replace the first occurrence of a distance pattern with the new formatted string
+                // If no distance pattern is found, prepend the distance string
+                if (distancePattern.test(originalDetails)) {
+                    return originalDetails.replace(distancePattern, distanceString);
+                } else {
+                    // If no distance was explicitly mentioned but baseKm > 0, prepend it
+                    return `${distanceString} ${originalDetails}`.trim();
+                }
             }
 
             // Main scaling function for the training plan
             function getScaledTrainingPlan(targetMarathonMinutes) {
                 const baseMarathonMinutes = 170; // 2:50:00
                 // Corrected scaling factor: lower time (faster speed) means higher mileage
-                const scalingFactor = baseMarathonMinutes / targetMarathonMinutes; 
+                globalScalingFactor = baseMarathonMinutes / targetMarathonMinutes; 
 
                 // Deep copy the base plan to avoid modifying the original
                 const scaledPlan = JSON.parse(JSON.stringify(baseTrainingPlan)); 
@@ -828,12 +835,11 @@
                         // Only scale if baseKm is greater than 0 (i.e., it's a running day)
                         let newScaledKm = currentDayBaseKm;
                         if (currentDayBaseKm > 0) {
-                            newScaledKm = Math.max(0, Math.round(currentDayBaseKm * scalingFactor * 10) / 10); // Round to 1 decimal place
+                            newScaledKm = Math.max(0, currentDayBaseKm * globalScalingFactor); // No rounding here, let formatDayDetails handle it
                         }
                         
-                        // Update the details string with scaled distances
-                        dayData.details = updateDetailsString(dayData.details, currentDayBaseKm, newScaledKm);
-                        
+                        // Note: dayData.details is NOT modified here. It's modified at render time.
+                        // We just need to sum up the scaled KMs for the weekly total.
                         weeklyScaledKm += newScaledKm;
                     });
                     weekData.totalKm = weeklyScaledKm; // Set totalKm for the week dynamically
@@ -916,7 +922,7 @@
                                 <span class="tooltiptext">${tooltipText}</span>
                             </div>
                         </div>
-                        <p class="text-gray-600 mt-2 text-sm">${dayData.details}</p>
+                        <p class="text-gray-600 mt-2 text-sm">${formatDayDetails(dayData.details, dayData.baseKm, isMiles, globalScalingFactor)}</p>
                     `;
                     dailyPlanContainer.appendChild(card);
                 });
@@ -1017,7 +1023,7 @@
 
             unitToggle.addEventListener('change', () => {
                 isMiles = unitToggle.checked;
-                const dot = unitToggle.parentNode.querySelector('.dot'); // Corrected reference
+                const dot = unitToggle.parentNode.querySelector('.dot');
                 if(isMiles) {
                     dot.style.transform = 'translateX(16px)';
                 } else {
@@ -1025,6 +1031,9 @@
                 }
                 renderPaceCards();
                 renderChart();
+                // Re-render the current week's plan to show updated distances in selected unit
+                const currentWeek = parseInt(weekSelector.value);
+                renderWeekPlan(currentWeek);
             });
 
             marathonTimeSlider.addEventListener('input', () => {
