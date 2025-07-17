@@ -1017,7 +1017,7 @@
 
             unitToggle.addEventListener('change', () => {
                 isMiles = unitToggle.checked;
-                const dot = unitToggle.nextElementSibling.querySelector('.dot');
+                const dot = unitToggle.parentNode.querySelector('.dot'); // Corrected reference
                 if(isMiles) {
                     dot.style.transform = 'translateX(16px)';
                 } else {
@@ -1099,6 +1099,14 @@
                 renderWeekSelector();
                 renderWeekPlan(currentWeekNumber);
                 renderChart();
+
+                // Set initial position of the toggle dot
+                const initialDot = unitToggle.parentNode.querySelector('.dot');
+                if (isMiles) {
+                    initialDot.style.transform = 'translateX(16px)';
+                } else {
+                    initialDot.style.transform = 'translateX(0)';
+                }
             }
 
             initializeApp();
