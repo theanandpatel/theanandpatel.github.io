@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Chosen Palette: Chicago Marathon Inspired (Deep Blue, Vibrant Red, Neutrals) -->
     <!-- Application Structure Plan: The application is structured as an interactive dashboard to make a dense 12-week training schedule easy to digest. The core structure is based on three distinct training phases (Base, Peak, Taper) presented as main navigation tabs. This non-linear approach allows the user to easily jump between phases without scrolling through a long document. Within each phase, a dropdown menu lets the user select a specific week, displaying that week's schedule in a clear, day-by-day card format. This granular view prevents overwhelm. A key interactive element is a bar chart visualizing weekly training volume, which immediately communicates the progression, build-up, and taper periods. This structure was chosen over a simple linear report because it empowers the user to explore the plan at their own pace, understand the training load visually, and focus on the current week while still having easy access to the big picture. -->
     <!-- Visualization & Content Choices: 
         - Report Info: Total weekly running distance for 12 weeks. -> Goal: Show training load progression and taper. -> Viz Method: Bar Chart (Chart.js/Canvas). -> Interaction: A toggle allows the user to switch the chart's y-axis and tooltips between kilometers and miles, personalizing the data display. A click on a bar navigates to the corresponding week's detailed plan. -> Justification: A bar chart is the most intuitive way to compare volume over time and visually reinforces the plan's structure (build, cutback, taper), making the progression clear. Click interaction enhances navigation.
@@ -19,8 +19,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #FDFBF8;
-            color: #3f3f46;
+            background-color: #F8F8F8; /* Light Gray/Off-white */
+            color: #333333; /* Dark Gray for main text */
             overflow-x: hidden; /* Prevent horizontal scrolling */
         }
         .chart-container {
@@ -41,7 +41,7 @@
             transition: all 0.3s ease;
         }
         .nav-button.active {
-            background-color: #A67B5B;
+            background-color: #002855; /* Deep Blue */
             color: #FFFFFF;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
@@ -54,7 +54,7 @@
         }
         .pace-card {
             background-color: #FFFFFF;
-            border: 1px solid #F3EFEA;
+            border: 1px solid #E0E0E0; /* Lighter Gray border */
         }
         .tooltip {
             position: relative;
@@ -83,7 +83,7 @@
             opacity: 1;
         }
         .past-day-card {
-            background-color: #F3F4F6; /* light gray */
+            background-color: #EFEFEF; /* Very light gray for past */
             color: #6B7280;
         }
         .current-day-card {
@@ -96,46 +96,46 @@
             padding: 10px 15px;
             border-radius: 8px 8px 0 0;
             font-weight: 600;
-            color: #6B7280;
-            background-color: #E5E7EB; /* gray-200 */
+            color: #333333; /* Dark Gray */
+            background-color: #E0E0E0; /* Lighter Gray */
             cursor: pointer;
             transition: all 0.2s ease;
             border-bottom: 2px solid transparent;
         }
         .tab-button:hover {
-            background-color: #D1D5DB; /* gray-300 */
+            background-color: #CCCCCC; /* Even lighter gray on hover */
         }
         .tab-button.active-tab {
             background-color: #FFFFFF;
-            color: #A67B5B;
-            border-bottom: 2px solid #A67B5B;
+            color: #002855; /* Deep Blue */
+            border-bottom: 2px solid #002855; /* Deep Blue border */
             box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
         }
         .tab-content {
             background-color: #FFFFFF;
             border-radius: 0 0 8px 8px;
             padding: 24px;
-            border: 1px solid #E5E7EB;
+            border: 1px solid #E0E0E0; /* Lighter Gray border */
             border-top: none;
         }
         .tab-content h3 {
             font-size: 1.25rem; /* text-xl */
             font-weight: 600; /* font-semibold */
-            color: #4A4A4A;
+            color: #002855; /* Deep Blue */
             margin-bottom: 12px;
-            border-bottom: 1px solid #F3EFEA;
+            border-bottom: 1px solid #E0E0E0; /* Lighter Gray border */
             padding-bottom: 8px;
         }
         .tab-content h4 {
             font-size: 1.125rem; /* text-lg */
             font-weight: 600; /* font-semibold */
-            color: #A67B5B;
+            color: #D40026; /* Vibrant Red */
             margin-top: 20px;
             margin-bottom: 8px;
         }
         .tab-content p, .tab-content ul, .tab-content table {
             margin-bottom: 16px;
-            color: #525252;
+            color: #525252; /* Slightly lighter text for content */
             line-height: 1.6;
         }
         .tab-content ul {
@@ -149,14 +149,14 @@
             margin-bottom: 16px;
         }
         .tab-content th, .tab-content td {
-            border: 1px solid #E5E7EB;
+            border: 1px solid #E0E0E0; /* Lighter Gray border */
             padding: 10px;
             text-align: left;
         }
         .tab-content th {
-            background-color: #F8F8F8;
+            background-color: #F0F0F0; /* Slightly darker gray for table headers */
             font-weight: 600;
-            color: #4A4A4A;
+            color: #333333; /* Dark Gray */
         }
         /* Added for the toggle dot size */
         .dot {
@@ -164,7 +164,7 @@
             height: 20px; /* Increased size */
             left: 2px; /* Adjusted for better visual centering */
             top: 2px;  /* Adjusted for better visual centering */
-            transition: transform 0.3s ease; /* ADDED THIS */
+            transition: transform 0.3s ease;
         }
     </style>
 </head>
@@ -172,20 +172,20 @@
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         
         <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-[#4A4A4A]">Your Road to Chicago</h1>
-            <p class="text-lg md:text-xl text-[#A67B5B] mt-2">A Sub-2:50 Marathon Training Plan</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-[#002855]">Your Road to Chicago</h1>
+            <p class="text-lg md:text-xl text-[#D40026] mt-2">A Sub-2:50 Marathon Training Plan</p>
         </header>
 
         <main>
             <!-- Introduction & Paces Section -->
-            <section id="intro" class="mb-10 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                <div class="prose max-w-none text-gray-600">
+            <section id="intro" class="mb-10 p-6 bg-white rounded-xl shadow-sm border border-[#E0E0E0]">
+                <div class="prose max-w-none text-[#525252]">
                     <p>This 12-week plan is designed to build on your 2:57 marathon performance and get you to the Chicago finish line in under 2 hours and 50 minutes. It's structured to be challenging yet sustainable, balancing key running sessions with your existing gym routine. We'll focus on building endurance and pace-specific fitness, with built-in recovery and a holiday-week adjustment. Listen to your body, stay consistent, and get ready for a great race on October 12th!</p>
                 </div>
 
                 <div class="mt-8">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-semibold text-[#4A4A4A]">Key Training Paces</h3>
+                        <h3 class="text-xl font-semibold text-[#002855]">Key Training Paces</h3>
                         <div class="flex items-center space-x-2 text-sm">
                             <span>KM</span>
                             <label for="unitToggle" class="flex items-center cursor-pointer">
@@ -201,11 +201,11 @@
 
                     <!-- Marathon Time Slider -->
                     <div class="mt-6 mb-4">
-                        <label for="marathonTimeSlider" class="block text-lg font-semibold text-[#4A4A4A] mb-2">
-                            Target Marathon Time: <span id="marathonTimeDisplay" class="text-[#A67B5B]">2:50:00</span>
+                        <label for="marathonTimeSlider" class="block text-lg font-semibold text-[#002855] mb-2">
+                            Target Marathon Time: <span id="marathonTimeDisplay" class="text-[#D40026]">2:50:00</span>
                         </label>
                         <input type="range" id="marathonTimeSlider" min="160" max="185" value="170" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <div class="flex justify-between text-xs text-[#525252] mt-1">
                             <span>2:40</span>
                             <span>3:05</span>
                         </div>
@@ -219,8 +219,8 @@
             
             <!-- Main Training Plan Section -->
             <section id="training-plan" class="mb-10">
-                 <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <h2 class="text-2xl font-bold text-center mb-6 text-[#4A4A4A]">Training Volume Overview</h2>
+                 <div class="p-6 bg-white rounded-xl shadow-sm border border-[#E0E0E0]">
+                    <h2 class="text-2xl font-bold text-center mb-6 text-[#002855]">Training Volume Overview</h2>
                     <div class="chart-container">
                         <canvas id="volumeChart"></canvas>
                     </div>
@@ -228,20 +228,20 @@
             </section>
             
             <section id="weekly-view">
-                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="p-6 bg-white rounded-xl shadow-sm border border-[#E0E0E0]">
                     <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
                         <div id="phase-nav" class="flex flex-wrap gap-2">
                             <!-- Phase buttons will be generated by JS -->
                         </div>
                         <div>
                             <label for="week-selector" class="sr-only">Select Week</label>
-                            <select id="week-selector" class="w-full sm:w-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#A67B5B] focus:border-[#A67B5B] block p-2.5">
+                            <select id="week-selector" class="w-full sm:w-auto bg-gray-50 border border-gray-300 text-[#333333] text-sm rounded-lg focus:ring-[#002855] focus:border-[#002855] block p-2.5">
                                 <!-- Week options will be generated by JS -->
                             </select>
                         </div>
                     </div>
                     
-                    <h3 id="week-title" class="text-2xl font-bold text-center mb-6 text-[#4A4A4A]"></h3>
+                    <h3 id="week-title" class="text-2xl font-bold text-center mb-6 text-[#002855]"></h3>
                     <div id="daily-plan-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         <!-- Daily plan cards will be generated by JS -->
                     </div>
@@ -249,9 +249,9 @@
             </section>
 
             <!-- New Guidance Section with Tabs -->
-            <section id="additional-guidance" class="mt-10 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                <h2 class="text-2xl font-bold text-center mb-6 text-[#4A4A4A]">In-Depth Guidance</h2>
-                <div class="flex flex-wrap justify-center border-b border-gray-200 mb-6">
+            <section id="additional-guidance" class="mt-10 p-6 bg-white rounded-xl shadow-sm border border-[#E0E0E0]">
+                <h2 class="text-2xl font-bold text-center mb-6 text-[#002855]">In-Depth Guidance</h2>
+                <div class="flex flex-wrap justify-center border-b border-[#E0E0E0] mb-6">
                     <button id="tab-nutrition" class="tab-button active-tab">Nutrition & Hydration</button>
                     <button id="tab-strength" class="tab-button">Strength Training</button>
                     <button id="tab-race" class="tab-button">Race Day Strategy</button>
@@ -320,7 +320,7 @@
                                 <tr>
                                     <td><strong>Protein</strong></td>
                                     <td>112-126g (1.6-1.8g/kg BW)</td>
-                                    <td>Spread intake throughout the day, including a portion before bed. Lean meats, fish, dairy, legumes.</td>
+                                    <td>Spread intake throughout the day, including a portion before bed. Lean meats (chicken, turkey, beef), fish, eggs, dairy products (milk, Greek yogurt), soy, beans, and protein powders.</td>
                                 </tr>
                                 <tr>
                                     <td><strong>Fats</strong></td>
@@ -546,7 +546,7 @@
             // Week 5: Aug 18-24
             { week: 5, phase: 'Specific Preparation', dates: 'Aug 18-24', schedule: [
                 { day: 'Mon', type: 'Gym / Easy Run', details: 'easy.', baseKm: 7},
-                { day: 'Tue', type: 'Workout', details: 'Warm-up, main set @ LT2 pace, cool-down.', baseKm: 8},
+                { day: 'Tue', type: 'Workout', details: '1mi WU, 3mi @ LT2 pace, 1mi CD.', baseKm: 8},
                 { day: 'Wed', type: 'Gym / Recovery', details: 'very slow recovery run.', baseKm: 6},
                 { day: 'Thu', type: 'Easy Run', details: 'easy.', baseKm: 9},
                 { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
@@ -586,7 +586,7 @@
             // Week 9: Sep 15-21
             { week: 9, phase: 'Specific Preparation', dates: 'Sep 15-21', schedule: [
                 { day: 'Mon', type: 'Gym / Easy Run', details: 'easy.', baseKm: 8},
-                { day: 'Tue', type: 'Workout', details: '3x2 at HM pace w/ 5 min jog recovery.', baseKm: 14},
+                { day: 'Tue', type: 'Workout', details: '3x2 mi @ HM pace w/ 5 min jog recovery.', baseKm: 14},
                 { day: 'Wed', type: 'Gym / Recovery', details: 'very slow recovery run.', baseKm: 7},
                 { day: 'Thu', type: 'Easy Run', details: 'easy.', baseKm: 10},
                 { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
@@ -606,7 +606,7 @@
             // Week 11: Sep 29 - Oct 5
             { week: 11, phase: 'Taper & Race', dates: 'Sep 29 - Oct 5', schedule: [
                 { day: 'Mon', type: 'Strength (Maintenance)', details: 'easy run.', baseKm: 5},
-                { day: 'Tue', type: 'Workout', details: '3x1 at MP w/ 400m jog.', baseKm: 9},
+                { day: 'Tue', type: 'Workout', details: '3x1 mile @ MP w/ 400m jog.', baseKm: 9},
                 { day: 'Wed', type: 'Strength (Maintenance)', details: 'easy run.', baseKm: 4},
                 { day: 'Thu', type: 'Easy Run', details: 'easy.', baseKm: 6},
                 { day: 'Fri', type: 'Strength (Maintenance)', details: 'easy run.', baseKm: 3},
@@ -846,7 +846,7 @@
                     const card = `
                         <div class="pace-card rounded-lg p-4 shadow-sm">
                             <h4 class="font-semibold capitalize text-gray-700">${name} Pace</h4>
-                            <p class="text-2xl font-bold text-[#A67B5B] mt-1">${paceValue}</p>
+                            <p class="text-2xl font-bold text-[#D40026] mt-1">${paceValue}</p>
                             <p class="text-xs text-gray-500">${unit}</p>
                         </div>
                     `;
@@ -895,7 +895,7 @@
                         : 'Remember to warm up before and cool down after each run.';
                     
                     const dayStatus = getRelativeDayStatus(weekData, index);
-                    let cardClasses = "day-card bg-white rounded-lg p-4 border border-gray-100 shadow-sm flex flex-col";
+                    let cardClasses = "day-card bg-white rounded-lg p-4 border border-[#E0E0E0] shadow-sm flex flex-col";
                     if (dayStatus === 'past') {
                         cardClasses += ' past-day-card';
                     } else if (dayStatus === 'current') {
@@ -906,13 +906,13 @@
                     card.className = cardClasses;
                     card.innerHTML = `
                         <div class="flex justify-between items-baseline">
-                            <h4 class="font-bold text-lg text-[#4A4A4A]">${dayData.day}</h4>
+                            <h4 class="font-bold text-lg text-[#333333]">${dayData.day}</h4>
                             <div class="tooltip">
                                 <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">${dayData.type}</span>
                                 <span class="tooltiptext">${tooltipText}</span>
                             </div>
                         </div>
-                        <p class="text-gray-600 mt-2 text-sm">${formatDayDetails(dayData.details, dayData.baseKm, isMiles, globalScalingFactor)}</p>
+                        <p class="text-[#525252] mt-2 text-sm">${formatDayDetails(dayData.details, dayData.baseKm, isMiles, globalScalingFactor)}</p>
                     `;
                     dailyPlanContainer.appendChild(card);
                 });
@@ -931,7 +931,7 @@
                     } else if (status === 'current') {
                         return 'rgba(251, 191, 36, 0.8)';
                     } else {
-                        return 'rgba(166, 123, 91, 0.6)';
+                        return 'rgba(0, 40, 85, 0.6)'; /* Deep Blue with opacity */
                     }
                 });
                 const borderColors = currentTrainingPlan.map(w => {
@@ -941,7 +941,7 @@
                     } else if (status === 'current') {
                         return 'rgba(245, 158, 11, 1)';
                     } else {
-                        return 'rgba(166, 123, 91, 1)';
+                        return 'rgba(0, 40, 85, 1)'; /* Solid Deep Blue */
                     }
                 });
 
