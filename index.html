@@ -203,10 +203,10 @@
                         <label for="marathonTimeSlider" class="block text-lg font-semibold text-[#4A4A4A] mb-2">
                             Target Marathon Time: <span id="marathonTimeDisplay" class="text-[#A67B5B]">2:50:00</span>
                         </label>
-                        <input type="range" id="marathonTimeSlider" min="150" max="360" value="170" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="marathonTimeSlider" min="160" max="185" value="170" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                         <div class="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>2:30</span>
-                            <span>6:00</span>
+                            <span>2:40</span>
+                            <span>3:05</span>
                         </div>
                     </div>
 
@@ -499,128 +499,133 @@
             interval: { km: "3:40-3:50", mi: "5:55-6:10" }
         };
 
-        const trainingPlan = [
-            // Week 1: Jul 21-27, 46 km
-            { week: 1, phase: 'Base Building', dates: 'Jul 21-27', totalKm: 46, schedule: [
-                { day: 'Mon', type: 'Gym / Rest', details: 'Focus on strength training or take a full rest day.'},
-                { day: 'Tue', type: 'Easy Run', details: '8km (5mi) at an easy, conversational pace.'},
-                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
-                { day: 'Thu', type: 'Intervals', details: '8km (5mi) total: 2k WU, 6x400m @ I-Pace w/ 400m jog recovery, 2k CD.'},
-                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
-                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) at an easy pace.'},
-                { day: 'Sun', type: 'Long Run', details: '16km (10mi) at a steady, easy pace.'}
+        // Base training plan with explicit baseKm for each daily workout
+        // totalKm for each week will be calculated dynamically
+        const baseTrainingPlan = [
+            // Week 1: Jul 21-27
+            { week: 1, phase: 'Base Building', dates: 'Jul 21-27', schedule: [
+                { day: 'Mon', type: 'Gym / Rest', details: 'Focus on strength training or take a full rest day.', baseKm: 0},
+                { day: 'Tue', type: 'Easy Run', details: '8km (5mi) at an easy, conversational pace.', baseKm: 8},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.', baseKm: 6},
+                { day: 'Thu', type: 'Intervals', details: '8km (5mi) total: 2k WU, 6x400m @ I-Pace w/ 400m jog recovery, 2k CD.', baseKm: 8},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) at an easy pace.', baseKm: 8},
+                { day: 'Sun', type: 'Long Run', details: '16km (10mi) at a steady, easy pace.', baseKm: 16}
             ]},
-            // Week 2: Jul 28 - Aug 3, 56 km
-            { week: 2, phase: 'Base Building', dates: 'Jul 28 - Aug 3', totalKm: 56, schedule: [
-                { day: 'Mon', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
-                { day: 'Tue', type: 'Tempo Run', details: '10km (6.2mi) total: 2k WU, 5k @ T-Pace, 3k CD.'},
-                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
-                { day: 'Thu', type: 'Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
-                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Sun', type: 'Long Run', details: '18km (11.2mi) at a steady, easy pace.'}
+            // Week 2: Jul 28 - Aug 3
+            { week: 2, phase: 'Base Building', dates: 'Jul 28 - Aug 3', schedule: [
+                { day: 'Mon', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.', baseKm: 6},
+                { day: 'Tue', type: 'Tempo Run', details: '10km (6.2mi) total: 2k WU, 5k @ T-Pace, 3k CD.', baseKm: 10},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.', baseKm: 6},
+                { day: 'Thu', type: 'Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Sun', type: 'Long Run', details: '18km (11.2mi) at a steady, easy pace.', baseKm: 18}
             ]},
-            // Week 3: Aug 4-10, 61 km
-            { week: 3, phase: 'Base Building', dates: 'Aug 4-10', totalKm: 61, schedule: [
-                { day: 'Mon', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
-                { day: 'Tue', type: 'Intervals', details: '10km (6.2mi) total: 2k WU, 8x600m @ I-Pace w/ 400m jog recovery, 2k CD.'},
-                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
-                { day: 'Thu', type: 'Easy Run + Strides', details: '10km (6.2mi) easy, finish with 6x100m strides.'},
-                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
-                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Sun', type: 'Long Run', details: '21km (13.1mi) at a steady, easy pace.'}
+            // Week 3: Aug 4-10
+            { week: 3, phase: 'Base Building', dates: 'Aug 4-10', schedule: [
+                { day: 'Mon', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.', baseKm: 6},
+                { day: 'Tue', type: 'Intervals', details: '10km (6.2mi) total: 2k WU, 8x600m @ I-Pace w/ 400m jog recovery, 2k CD.', baseKm: 10},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.', baseKm: 6},
+                { day: 'Thu', type: 'Easy Run + Strides', details: '10km (6.2mi) easy, finish with 6x100m strides.', baseKm: 10},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Sun', type: 'Long Run', details: '21km (13.1mi) at a steady, easy pace.', baseKm: 21}
             ]},
-            // Week 4: Aug 11-17, 54 km
-            { week: 4, phase: 'Specific Preparation', dates: 'Aug 11-17', totalKm: 54, schedule: [
-                { day: 'Mon', type: 'Gym / Rest', details: 'Focus on strength training or take a full rest day.'},
-                { day: 'Tue', type: 'Workout', details: '8km (5mi) total: 4x1200m @ 5k pace w/ 4min jog recovery.'}, // Assuming 8km total workout
-                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
-                { day: 'Thu', type: 'Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
-                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Sun', type: 'Long Run', details: '24km (15mi) easy.'}
+            // Week 4: Aug 11-17
+            { week: 4, phase: 'Specific Preparation', dates: 'Aug 11-17', schedule: [
+                { day: 'Mon', type: 'Gym / Rest', details: 'Focus on strength training or take a full rest day.', baseKm: 0},
+                { day: 'Tue', type: 'Workout', details: '8km (5mi) total: 4x1200m @ 5k pace w/ 4min jog recovery.', baseKm: 8},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.', baseKm: 6},
+                { day: 'Thu', type: 'Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Sun', type: 'Long Run', details: '24km (15mi) easy.', baseKm: 24}
             ]},
-            // Week 5: Aug 18-24, 64 km
-            { week: 5, phase: 'Specific Preparation', dates: 'Aug 18-24', totalKm: 64, schedule: [
-                { day: 'Mon', type: 'Gym / Easy Run', details: '7km (4.3mi) easy.'},
-                { day: 'Tue', type: 'Workout', details: '8km (5mi) total: 1mi WU, 3mi @ LT2 pace, 1mi CD.'}, // 5 miles total = 8.05km, rounded to 8km
-                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
-                { day: 'Thu', type: 'Easy Run', details: '9km (5.6mi) easy.'},
-                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
-                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Sun', type: 'Long Run', details: '26km (16mi) easy.'}
+            // Week 5: Aug 18-24
+            { week: 5, phase: 'Specific Preparation', dates: 'Aug 18-24', schedule: [
+                { day: 'Mon', type: 'Gym / Easy Run', details: '7km (4.3mi) easy.', baseKm: 7},
+                { day: 'Tue', type: 'Workout', details: '8km (5mi) total: 1mi WU, 3mi @ LT2 pace, 1mi CD.', baseKm: 8},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.', baseKm: 6},
+                { day: 'Thu', type: 'Easy Run', details: '9km (5.6mi) easy.', baseKm: 9},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Sun', type: 'Long Run', details: '26km (16mi) easy.', baseKm: 26}
             ]},
-            // Week 6 (Holiday): Aug 25-31, 42.5 km (Adjusted for "limited" holiday)
-            { week: 6, phase: 'Specific Preparation (Holiday)', dates: 'Aug 25-31', totalKm: 42.5, schedule: [
-                { day: 'Mon', type: 'Strength (Bodyweight)', details: '5.6km (3.5mi) Easy run.'}, // Avg of 3-4mi
-                { day: 'Tue', type: 'Easy Run', details: '5.6km (3.5mi) Easy run.'},
-                { day: 'Wed', type: 'Strength (Bodyweight)', details: '5.6km (3.5mi) Easy run.'},
-                { day: 'Thu', type: 'Easy Run', details: '5.6km (3.5mi) Easy run.'},
-                { day: 'Fri', type: 'Strength (Bodyweight)', details: '5.6km (3.5mi) Easy run.'},
-                { day: 'Sat', type: 'Easy Run', details: '14.5km (9mi) Easy / Exploratory run.'}, // Avg of 8-10mi
-                { day: 'Sun', type: 'Rest / Active Recovery', details: 'Focus on maintenance, flexibility, and mental break.'}
+            // Week 6 (Holiday): Aug 25-31
+            { week: 6, phase: 'Specific Preparation (Holiday)', dates: 'Aug 25-31', schedule: [
+                { day: 'Mon', type: 'Strength (Bodyweight)', details: '5.6km (3.5mi) Easy run.', baseKm: 5.6},
+                { day: 'Tue', type: 'Easy Run', details: '5.6km (3.5mi) Easy run.', baseKm: 5.6},
+                { day: 'Wed', type: 'Strength (Bodyweight)', details: '5.6km (3.5mi) Easy run.', baseKm: 5.6},
+                { day: 'Thu', type: 'Easy Run', details: '5.6km (3.5mi) Easy run.', baseKm: 5.6},
+                { day: 'Fri', type: 'Strength (Bodyweight)', details: '5.6km (3.5mi) Easy run.', baseKm: 5.6},
+                { day: 'Sat', type: 'Easy Run', details: '14.5km (9mi) Easy / Exploratory run.', baseKm: 14.5},
+                { day: 'Sun', type: 'Rest / Active Recovery', details: 'Focus on maintenance, flexibility, and mental break.', baseKm: 0}
             ]},
-            // Week 7: Sep 1-7, 77 km
-            { week: 7, phase: 'Specific Preparation', dates: 'Sep 1-7', totalKm: 77, schedule: [
-                { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Tue', type: 'Workout', details: '12km (7.5mi) total: 20x1 min fast/1 min jog Fartlek.'}, // Estimated total for Fartlek
-                { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.'},
-                { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.'},
-                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
-                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Sun', type: 'Long Run', details: '32km (20mi) easy.'}
+            // Week 7: Sep 1-7
+            { week: 7, phase: 'Specific Preparation', dates: 'Sep 1-7', schedule: [
+                { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Tue', type: 'Workout', details: '12km (7.5mi) total: 20x1 min fast/1 min jog Fartlek.', baseKm: 12},
+                { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.', baseKm: 7},
+                { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.', baseKm: 10},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Sun', type: 'Long Run', details: '32km (20mi) easy.', baseKm: 32}
             ]},
-            // Week 8: Sep 8-14, 69 km
-            { week: 8, phase: 'Specific Preparation', dates: 'Sep 8-14', totalKm: 69, schedule: [
-                { day: 'Mon', type: 'Gym / Easy Run', details: '7km (4.3mi) easy.'},
-                { day: 'Tue', type: 'Workout', details: '10km (6.2mi) total: 6x1k @ LT2 w/ 60s jog recovery.'}, // Estimated total for workout
-                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
-                { day: 'Thu', type: 'Easy Run', details: '9km (5.6mi) easy.'},
-                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
-                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Sun', type: 'Long Run', details: '29km (18mi) easy.'}
+            // Week 8: Sep 8-14
+            { week: 8, phase: 'Specific Preparation', dates: 'Sep 8-14', schedule: [
+                { day: 'Mon', type: 'Gym / Easy Run', details: '7km (4.3mi) easy.', baseKm: 7},
+                { day: 'Tue', type: 'Workout', details: '10km (6.2mi) total: 6x1k @ LT2 w/ 60s jog recovery.', baseKm: 10},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.', baseKm: 6},
+                { day: 'Thu', type: 'Easy Run', details: '9km (5.6mi) easy.', baseKm: 9},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Sun', type: 'Long Run', details: '29km (18mi) easy.', baseKm: 29}
             ]},
-            // Week 9: Sep 15-21, 82 km
-            { week: 9, phase: 'Specific Preparation', dates: 'Sep 15-21', totalKm: 82, schedule: [
-                { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Tue', type: 'Workout', details: '14km (8.7mi) total: 3x2 mi @ HM pace w/ 5 min jog recovery.'}, // Estimated total for workout
-                { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.'},
-                { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.'},
-                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
-                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Sun', type: 'Long Run', details: '35km (22mi) easy w/ 5km (3mi) @ MP at end.'}
+            // Week 9: Sep 15-21
+            { week: 9, phase: 'Specific Preparation', dates: 'Sep 15-21', schedule: [
+                { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Tue', type: 'Workout', details: '14km (8.7mi) total: 3x2 mi @ HM pace w/ 5 min jog recovery.', baseKm: 14},
+                { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.', baseKm: 7},
+                { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.', baseKm: 10},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Sun', type: 'Long Run', details: '35km (22mi) easy w/ 5km (3mi) @ MP at end.', baseKm: 35}
             ]},
-            // Week 10: Sep 22-28, 79 km
-            { week: 10, phase: 'Peak Performance', dates: 'Sep 22-28', totalKm: 79, schedule: [
-                { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Tue', type: 'Workout', details: '14km (8.7mi) total: 10k @ LT2 pace (continuous).'}, // Estimated total for workout
-                { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.'},
-                { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.'},
-                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
-                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Sun', type: 'Long Run', details: '32km (20mi) with 10-13km (6-8mi) @ MP.'}
+            // Week 10: Sep 22-28
+            { week: 10, phase: 'Peak Performance', dates: 'Sep 22-28', schedule: [
+                { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Tue', type: 'Workout', details: '14km (8.7mi) total: 10k @ LT2 pace (continuous).', baseKm: 14},
+                { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.', baseKm: 7},
+                { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.', baseKm: 10},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.', baseKm: 0},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.', baseKm: 8},
+                { day: 'Sun', type: 'Long Run', details: '32km (20mi) with 10-13km (6-8mi) @ MP.', baseKm: 32}
             ]},
-            // Week 11: Sep 29 - Oct 5, 43 km
-            { week: 11, phase: 'Taper & Race', dates: 'Sep 29 - Oct 5', totalKm: 43, schedule: [
-                { day: 'Mon', type: 'Strength (Maintenance)', details: '5km (3.1mi) easy run.'},
-                { day: 'Tue', type: 'Workout', details: '9km (5.6mi) total: 3x1 mile @ MP w/ 400m jog.'}, // Estimated total for workout
-                { day: 'Wed', type: 'Strength (Maintenance)', details: '4km (2.5mi) easy run.'},
-                { day: 'Thu', type: 'Easy Run', details: '6km (3.7mi) easy.'},
-                { day: 'Fri', type: 'Strength (Maintenance)', details: '3km (1.8mi) easy run.'},
-                { day: 'Sat', type: 'Easy Run', details: '16km (10mi) easy.'},
-                { day: 'Sun', type: 'Rest', details: 'Full rest day.'}
+            // Week 11: Sep 29 - Oct 5
+            { week: 11, phase: 'Taper & Race', dates: 'Sep 29 - Oct 5', schedule: [
+                { day: 'Mon', type: 'Strength (Maintenance)', details: '5km (3.1mi) easy run.', baseKm: 5},
+                { day: 'Tue', type: 'Workout', details: '9km (5.6mi) total: 3x1 mile @ MP w/ 400m jog.', baseKm: 9},
+                { day: 'Wed', type: 'Strength (Maintenance)', details: '4km (2.5mi) easy run.', baseKm: 4},
+                { day: 'Thu', type: 'Easy Run', details: '6km (3.7mi) easy.', baseKm: 6},
+                { day: 'Fri', type: 'Strength (Maintenance)', details: '3km (1.8mi) easy run.', baseKm: 3},
+                { day: 'Sat', type: 'Easy Run', details: '16km (10mi) easy.', baseKm: 16},
+                { day: 'Sun', type: 'Rest', details: 'Full rest day.', baseKm: 0}
             ]},
-            // Week 12: Oct 6-12, 26 km (Training volume only, excludes race)
-            { week: 12, phase: 'Taper & Race', dates: 'Oct 6-12', totalKm: 26, schedule: [
-                { day: 'Mon', type: 'Rest', details: 'Full rest day.'},
-                { day: 'Tue', type: 'Workout', details: '7km (4.3mi) total: 4x800m @ 5k pace w/ 400m jog.'}, // Estimated total for workout
-                { day: 'Wed', type: 'Easy Run', details: '5km (3.1mi) easy.'},
-                { day: 'Thu', type: 'Easy Run', details: '6km (3.7mi) easy.'},
-                { day: 'Fri', type: 'Rest', details: 'Full rest day.'},
-                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy shakeout run.'},
-                { day: 'Sun', type: 'RACE DAY', details: 'CHICAGO MARATHON! Go for Sub 2:50!'}
+            // Week 12: Oct 6-12
+            { week: 12, phase: 'Taper & Race', dates: 'Oct 6-12', schedule: [
+                { day: 'Mon', type: 'Rest', details: 'Full rest day.', baseKm: 0},
+                { day: 'Tue', type: 'Workout', details: '7km (4.3mi) total: 4x800m @ 5k pace w/ 400m jog.', baseKm: 7},
+                { day: 'Wed', type: 'Easy Run', details: '5km (3.1mi) easy.', baseKm: 5},
+                { day: 'Thu', type: 'Easy Run', details: '6km (3.7mi) easy.', baseKm: 6},
+                { day: 'Fri', type: 'Rest', details: 'Full rest day.', baseKm: 0},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy shakeout run.', baseKm: 8},
+                { day: 'Sun', type: 'RACE DAY', details: 'CHICAGO MARATHON! Go for Sub 2:50!', baseKm: 0}
             ]}
         ];
+
+        // This will hold the currently scaled training plan
+        let currentTrainingPlan = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             const unitToggle = document.getElementById('unitToggle');
@@ -637,13 +642,13 @@
             let currentPhase = 'Base Building';
             let volumeChart;
 
-            const phases = [...new Set(trainingPlan.map(w => w.phase))];
+            const phases = [...new Set(baseTrainingPlan.map(w => w.phase))];
 
             // Function to convert total minutes to H:MM:SS format
             function formatMinutesToHMS(totalMinutes) {
                 const hours = Math.floor(totalMinutes / 60);
                 const minutes = Math.floor(totalMinutes % 60);
-                const seconds = Math.round((totalMinutes % 1) * 60); // In case of non-integer minutes
+                const seconds = Math.round((totalMinutes % 1) * 60);
                 return `${hours.toString().padStart(1, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }
 
@@ -658,24 +663,15 @@
             function calculatePaces(targetMarathonMinutes) {
                 const totalMarathonSeconds = targetMarathonMinutes * 60;
 
-                // Marathon distance in KM and Miles
                 const marathonKm = 42.195;
                 const marathonMiles = 26.219;
 
-                // Calculate target Marathon Pace in seconds per KM and per Mile
                 const mpSecPerKm = totalMarathonSeconds / marathonKm;
                 const mpSecPerMile = totalMarathonSeconds / marathonMiles;
 
-                // Define pace differentials in seconds relative to MP
-                // These are typical relationships, can be fine-tuned based on runner's profile
-                // Easy: MP + 45-75 seconds/mile (28-47 seconds/km)
-                // Tempo: MP - 10-20 seconds/mile (6-12 seconds/km)
-                // Interval: MP - 30-50 seconds/mile (18-31 seconds/km)
-                
-                // Using averages for now, can be made more dynamic if needed
-                const easyDiffSecKm = 38; // ~60s/mile slower
-                const tempoDiffSecKm = -9; // ~15s/mile faster
-                const intervalDiffSecKm = -25; // ~40s/mile faster
+                const easyDiffSecKm = 38;
+                const tempoDiffSecKm = -9;
+                const intervalDiffSecKm = -25;
 
                 const easyDiffSecMile = 60; 
                 const tempoDiffSecMile = -15; 
@@ -709,7 +705,7 @@
                 };
 
                 const parts = dateRange.split(' - ');
-                const startParts = parts[0].split(' '); // e.g., ['Jul', '21']
+                const startParts = parts[0].split(' ');
                 const startMonth = months[startParts[0]];
                 const startDay = parseInt(startParts[1]);
 
@@ -719,25 +715,24 @@
                 let endDate;
                 if (parts.length > 1) {
                     const endParts = parts[1].split(' ');
-                    let endMonth = months[endParts[0]] !== undefined ? months[endParts[0]] : startMonth; // Use startMonth if end month not explicitly provided
-                    let endDay = parseInt(endParts[endParts.length - 1]); // Get last part as day
+                    let endMonth = months[endParts[0]] !== undefined ? months[endParts[0]] : startMonth;
+                    let endDay = parseInt(endParts[endParts.length - 1]);
 
                     endDate = new Date(year, endMonth, endDay);
                     endDate.setHours(0, 0, 0, 0);
 
-                    // Adjust year if month crosses year boundary (e.g., Dec to Jan)
                     if (startDate.getMonth() > endDate.getMonth()) {
                         endDate.setFullYear(year + 1);
                     }
                 } else {
-                    endDate = new Date(startDate); // Single day range
+                    endDate = new Date(startDate);
                 }
                 return { startDate, endDate };
             }
 
             function getRelativeWeekStatus(weekData) {
                 const today = new Date();
-                today.setHours(0, 0, 0, 0); // Normalize today to start of day
+                today.setHours(0, 0, 0, 0);
 
                 const currentYear = today.getFullYear();
                 const { startDate, endDate } = parseDateRange(weekData.dates, currentYear);
@@ -753,30 +748,24 @@
 
             function getRelativeDayStatus(weekData, dayIndex) {
                 const today = new Date();
-                today.setHours(0, 0, 0, 0); // Normalize today to start of day
+                today.setHours(0, 0, 0, 0);
 
                 const currentYear = today.getFullYear();
                 const { startDate } = parseDateRange(weekData.dates, currentYear);
 
-                // IMPORTANT: Align daysOfWeek with Date.prototype.getDay() (0=Sun, 1=Mon, ..., 6=Sat)
                 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                 const planDayName = weekData.schedule[dayIndex].day;
                 const planDayOfWeekIndex = daysOfWeek.indexOf(planDayName); 
 
-                // Calculate the actual date of the plan day
                 const planDate = new Date(startDate);
-                const startDayOfWeekIndex = startDate.getDay(); // 0=Sun, 1=Mon, etc.
+                const startDayOfWeekIndex = startDate.getDay();
 
-                // Calculate the difference in days to add to startDate to get to planDayName's date within that week
                 let daysToAdd = planDayOfWeekIndex - startDayOfWeekIndex;
-                // Ensure daysToAdd is positive and points to the correct day within the week
-                // Example: if startDate is a Wednesday (3) and planDayName is Monday (1), daysToAdd is -2.
-                // We want to go to the *next* Monday, so add 7: -2 + 7 = 5 days.
                 if (daysToAdd < 0) { 
                     daysToAdd += 7;
                 }
                 planDate.setDate(startDate.getDate() + daysToAdd);
-                planDate.setHours(0, 0, 0, 0); // Normalize to start of day
+                planDate.setHours(0, 0, 0, 0);
 
                 if (today > planDate) {
                     return 'past';
@@ -786,6 +775,56 @@
                     return 'future';
                 }
             }
+
+            // Function to update details string with new scaled km/mi
+            function updateDetailsString(originalDetails, originalKm, scaledKm) {
+                const originalMi = (originalKm * MILE_CONVERSION);
+                const scaledMi = (scaledKm * MILE_CONVERSION);
+
+                // Regex to find patterns like "8km (5mi)", "8km", "5mi" and replace them
+                let newDetails = originalDetails;
+
+                // Pattern 1: Xkm (Ymi)
+                newDetails = newDetails.replace(/(\d+(\.\d+)?)km \((\d+(\.\d+)?)mi\)/, `${scaledKm.toFixed(1)}km (${scaledMi.toFixed(1)}mi)`);
+                
+                // Pattern 2: Xkm (if pattern 1 not found or details only has km)
+                if (newDetails === originalDetails || !originalDetails.includes('mi')) {
+                     newDetails = newDetails.replace(/(\d+(\.\d+)?)km/, `${scaledKm.toFixed(1)}km`);
+                }
+
+                // Pattern 3: Ymi (if only miles were explicitly mentioned)
+                if (newDetails === originalDetails || !originalDetails.includes('km')) {
+                    newDetails = newDetails.replace(/(\d+(\.\d+)?)mi/, `${scaledMi.toFixed(1)}mi`);
+                }
+                
+                return newDetails;
+            }
+
+            // Main scaling function for the training plan
+            function getScaledTrainingPlan(targetMarathonMinutes) {
+                const baseMarathonMinutes = 170; // 2:50:00
+                const scalingFactor = targetMarathonMinutes / baseMarathonMinutes;
+
+                // Deep copy the base plan to avoid modifying the original
+                const scaledPlan = JSON.parse(JSON.stringify(baseTrainingPlan)); 
+
+                scaledPlan.forEach(weekData => {
+                    let weeklyScaledKm = 0;
+                    weekData.schedule.forEach(dayData => {
+                        let currentDayBaseKm = dayData.baseKm;
+                        
+                        const newScaledKm = Math.max(0, Math.round(currentDayBaseKm * scalingFactor * 10) / 10); // Round to 1 decimal place
+                        
+                        // Update the details string with scaled distances
+                        dayData.details = updateDetailsString(dayData.details, currentDayBaseKm, newScaledKm);
+                        
+                        weeklyScaledKm += newScaledKm;
+                    });
+                    weekData.totalKm = weeklyScaledKm; // Set totalKm for the week dynamically
+                });
+                return scaledPlan;
+            }
+
 
             function renderPaceCards() {
                 paceCardsContainer.innerHTML = '';
@@ -813,7 +852,7 @@
                         currentPhase = phase;
                         renderPhaseNav();
                         renderWeekSelector();
-                        const firstWeekOfPhase = trainingPlan.find(w => w.phase === currentPhase).week;
+                        const firstWeekOfPhase = currentTrainingPlan.find(w => w.phase === currentPhase).week;
                         renderWeekPlan(firstWeekOfPhase);
                     });
                     phaseNav.appendChild(button);
@@ -822,7 +861,7 @@
 
             function renderWeekSelector() {
                 weekSelector.innerHTML = '';
-                trainingPlan
+                currentTrainingPlan
                     .filter(w => w.phase === currentPhase)
                     .forEach(weekData => {
                         const option = document.createElement('option');
@@ -833,7 +872,7 @@
             }
 
             function renderWeekPlan(weekNumber) {
-                const weekData = trainingPlan.find(w => w.week === parseInt(weekNumber));
+                const weekData = currentTrainingPlan.find(w => w.week === parseInt(weekNumber));
                 if (!weekData) return;
 
                 weekTitle.textContent = `Week ${weekData.week}: ${weekData.phase}`;
@@ -869,28 +908,28 @@
             }
 
             function renderChart() {
-                const labels = trainingPlan.map(w => `W${w.week}`);
-                const data = trainingPlan.map(w => isMiles ? (w.totalKm * MILE_CONVERSION).toFixed(1) : w.totalKm);
+                const labels = currentTrainingPlan.map(w => `W${w.week}`);
+                const data = currentTrainingPlan.map(w => isMiles ? (w.totalKm * MILE_CONVERSION).toFixed(1) : w.totalKm.toFixed(1));
                 const unit = isMiles ? 'Miles' : 'Kilometers';
 
-                const backgroundColors = trainingPlan.map(w => {
+                const backgroundColors = currentTrainingPlan.map(w => {
                     const status = getRelativeWeekStatus(w);
                     if (status === 'past') {
-                        return 'rgba(209, 213, 219, 0.6)'; // Tailwind gray-300
+                        return 'rgba(209, 213, 219, 0.6)';
                     } else if (status === 'current') {
-                        return 'rgba(251, 191, 36, 0.8)'; // Tailwind yellow-500
+                        return 'rgba(251, 191, 36, 0.8)';
                     } else {
-                        return 'rgba(166, 123, 91, 0.6)'; // Original plan color
+                        return 'rgba(166, 123, 91, 0.6)';
                     }
                 });
-                const borderColors = trainingPlan.map(w => {
+                const borderColors = currentTrainingPlan.map(w => {
                     const status = getRelativeWeekStatus(w);
                     if (status === 'past') {
-                        return 'rgba(156, 163, 175, 1)'; // Tailwind gray-400
+                        return 'rgba(156, 163, 175, 1)';
                     } else if (status === 'current') {
-                        return 'rgba(245, 158, 11, 1)'; // Tailwind yellow-600
+                        return 'rgba(245, 158, 11, 1)';
                     } else {
-                        return 'rgba(166, 123, 91, 1)'; // Original plan color
+                        return 'rgba(166, 123, 91, 1)';
                     }
                 });
 
@@ -946,8 +985,8 @@
                         onClick: (event, elements) => {
                             if (elements.length > 0) {
                                 const clickedElementIndex = elements[0].index;
-                                const weekNumber = clickedElementIndex + 1; // Weeks are 1-indexed
-                                const clickedWeekData = trainingPlan.find(w => w.week === weekNumber);
+                                const weekNumber = clickedElementIndex + 1;
+                                const clickedWeekData = currentTrainingPlan.find(w => w.week === weekNumber);
                                 if (clickedWeekData) {
                                     currentPhase = clickedWeekData.phase;
                                     renderPhaseNav();
@@ -964,7 +1003,7 @@
                 isMiles = unitToggle.checked;
                 const dot = unitToggle.nextElementSibling.querySelector('.dot');
                 if(isMiles) {
-                    dot.style.transform = 'translateX(16px)'; // Adjusted for 20px dot in 40px track
+                    dot.style.transform = 'translateX(16px)';
                 } else {
                     dot.style.transform = 'translateX(0)';
                 }
@@ -975,8 +1014,17 @@
             marathonTimeSlider.addEventListener('input', () => {
                 const totalMinutes = parseInt(marathonTimeSlider.value);
                 marathonTimeDisplay.textContent = formatMinutesToHMS(totalMinutes);
-                paces = calculatePaces(totalMinutes); // Update the global paces object
-                renderPaceCards(); // Re-render pace cards with new values
+                
+                // Recalculate paces and scale the training plan
+                paces = calculatePaces(totalMinutes);
+                currentTrainingPlan = getScaledTrainingPlan(totalMinutes);
+
+                // Re-render everything that depends on paces or scaled plan
+                renderPaceCards();
+                renderChart();
+                // Re-render the current week's plan to show updated distances
+                const currentWeek = parseInt(weekSelector.value);
+                renderWeekPlan(currentWeek);
             });
 
             weekSelector.addEventListener('change', (e) => {
@@ -989,14 +1037,11 @@
 
             tabButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    // Deactivate all buttons and hide all content
                     tabButtons.forEach(btn => btn.classList.remove('active-tab'));
                     tabContents.forEach(content => content.classList.add('hidden'));
 
-                    // Activate clicked button
                     button.classList.add('active-tab');
 
-                    // Show corresponding content
                     const targetId = button.id.replace('tab-', 'tab-content-');
                     document.getElementById(targetId).classList.remove('hidden');
                 });
@@ -1007,31 +1052,31 @@
             function initializeApp() {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                let currentWeekNumber = 1; // Default to week 1
+                let currentWeekNumber = 1;
 
-                for (const weekData of trainingPlan) {
+                // Calculate the initial scaled plan based on the default slider value
+                currentTrainingPlan = getScaledTrainingPlan(parseInt(marathonTimeSlider.value));
+
+                for (const weekData of currentTrainingPlan) {
                     const currentYear = today.getFullYear();
                     const { startDate, endDate } = parseDateRange(weekData.dates, currentYear);
                     if (today >= startDate && today <= endDate) {
                         currentWeekNumber = weekData.week;
                         break;
                     }
-                    // If today is after the end date of the last week, default to the last week
-                    if (weekData.week === trainingPlan.length && today > endDate) {
-                        currentWeekNumber = trainingPlan.length;
+                    if (weekData.week === currentTrainingPlan.length && today > endDate) {
+                        currentWeekNumber = currentTrainingPlan.length;
                         break;
                     }
                 }
                 
-                const initialWeekData = trainingPlan.find(w => w.week === currentWeekNumber);
+                const initialWeekData = currentTrainingPlan.find(w => w.week === currentWeekNumber);
                 if (initialWeekData) {
                     currentPhase = initialWeekData.phase;
                 }
 
-                // Initialize paces based on default slider value (2:50)
                 paces = calculatePaces(parseInt(marathonTimeSlider.value));
                 marathonTimeDisplay.textContent = formatMinutesToHMS(parseInt(marathonTimeSlider.value));
-
 
                 renderPaceCards();
                 renderPhaseNav();
