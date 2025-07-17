@@ -500,8 +500,8 @@
         };
 
         const trainingPlan = [
-            // Week 1: Jul 21-27, 61 km
-            { week: 1, phase: 'Base Building', dates: 'Jul 21-27', totalKm: 61, schedule: [
+            // Week 1: Jul 21-27, 46 km
+            { week: 1, phase: 'Base Building', dates: 'Jul 21-27', totalKm: 46, schedule: [
                 { day: 'Mon', type: 'Gym / Rest', details: 'Focus on strength training or take a full rest day.'},
                 { day: 'Tue', type: 'Easy Run', details: '8km (5mi) at an easy, conversational pace.'},
                 { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
@@ -510,8 +510,8 @@
                 { day: 'Sat', type: 'Easy Run', details: '8km (5mi) at an easy pace.'},
                 { day: 'Sun', type: 'Long Run', details: '16km (10mi) at a steady, easy pace.'}
             ]},
-            // Week 2: Jul 28 - Aug 3, 68 km
-            { week: 2, phase: 'Base Building', dates: 'Jul 28 - Aug 3', totalKm: 68, schedule: [
+            // Week 2: Jul 28 - Aug 3, 56 km
+            { week: 2, phase: 'Base Building', dates: 'Jul 28 - Aug 3', totalKm: 56, schedule: [
                 { day: 'Mon', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
                 { day: 'Tue', type: 'Tempo Run', details: '10km (6.2mi) total: 2k WU, 5k @ T-Pace, 3k CD.'},
                 { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
@@ -520,8 +520,8 @@
                 { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
                 { day: 'Sun', type: 'Long Run', details: '18km (11.2mi) at a steady, easy pace.'}
             ]},
-            // Week 3: Aug 4-10, 74 km
-            { week: 3, phase: 'Base Building', dates: 'Aug 4-10', totalKm: 74, schedule: [
+            // Week 3: Aug 4-10, 61 km
+            { week: 3, phase: 'Base Building', dates: 'Aug 4-10', totalKm: 61, schedule: [
                 { day: 'Mon', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
                 { day: 'Tue', type: 'Intervals', details: '10km (6.2mi) total: 2k WU, 8x600m @ I-Pace w/ 400m jog recovery, 2k CD.'},
                 { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
@@ -530,90 +530,90 @@
                 { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
                 { day: 'Sun', type: 'Long Run', details: '21km (13.1mi) at a steady, easy pace.'}
             ]},
-            // Week 4: Aug 11-17, 80 km
-            { week: 4, phase: 'Specific Preparation', dates: 'Aug 11-17', totalKm: 80, schedule: [
+            // Week 4: Aug 11-17, 54 km
+            { week: 4, phase: 'Specific Preparation', dates: 'Aug 11-17', totalKm: 54, schedule: [
                 { day: 'Mon', type: 'Gym / Rest', details: 'Focus on strength training or take a full rest day.'},
-                { day: 'Tue', type: 'Workout', details: '4x1200m @ 5k pace w/ 4min jog recovery.'},
+                { day: 'Tue', type: 'Workout', details: '8km (5mi) total: 4x1200m @ 5k pace w/ 4min jog recovery.'}, // Assuming 8km total workout
                 { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
                 { day: 'Thu', type: 'Easy Run', details: '8km (5mi) easy.'},
                 { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
                 { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
                 { day: 'Sun', type: 'Long Run', details: '24km (15mi) easy.'}
             ]},
-            // Week 5: Aug 18-24, 87 km
-            { week: 5, phase: 'Specific Preparation', dates: 'Aug 18-24', totalKm: 87, schedule: [
+            // Week 5: Aug 18-24, 64 km
+            { week: 5, phase: 'Specific Preparation', dates: 'Aug 18-24', totalKm: 64, schedule: [
                 { day: 'Mon', type: 'Gym / Easy Run', details: '7km (4.3mi) easy.'},
-                { day: 'Tue', type: 'Workout', details: '5 mi Tempo (1 mi warm-up, 3 mi @ LT2 pace, 1 mi cool-down).'},
+                { day: 'Tue', type: 'Workout', details: '8km (5mi) total: 1mi WU, 3mi @ LT2 pace, 1mi CD.'}, // 5 miles total = 8.05km, rounded to 8km
                 { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
                 { day: 'Thu', type: 'Easy Run', details: '9km (5.6mi) easy.'},
                 { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
                 { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
                 { day: 'Sun', type: 'Long Run', details: '26km (16mi) easy.'}
             ]},
-            // Week 6 (Holiday): Aug 25-31, 64 km (content moved from original Week 8)
-            { week: 6, phase: 'Specific Preparation (Holiday)', dates: 'Aug 25-31', totalKm: 64, schedule: [
-                { day: 'Mon', type: 'Strength (Bodyweight)', details: '3-4 mi Easy run.'},
-                { day: 'Tue', type: 'Easy Run', details: '3-4 mi Easy run.'},
-                { day: 'Wed', type: 'Strength (Bodyweight)', details: '3-4 mi Easy run.'},
-                { day: 'Thu', type: 'Easy Run', details: '3-4 mi Easy run.'},
-                { day: 'Fri', type: 'Strength (Bodyweight)', details: '3-4 mi Easy run.'},
-                { day: 'Sat', type: 'Easy Run', details: '8-10 mi Easy / Exploratory run.'},
+            // Week 6 (Holiday): Aug 25-31, 42.5 km (Adjusted for "limited" holiday)
+            { week: 6, phase: 'Specific Preparation (Holiday)', dates: 'Aug 25-31', totalKm: 42.5, schedule: [
+                { day: 'Mon', type: 'Strength (Bodyweight)', details: '5.6km (3.5mi) Easy run.'}, // Avg of 3-4mi
+                { day: 'Tue', type: 'Easy Run', details: '5.6km (3.5mi) Easy run.'},
+                { day: 'Wed', type: 'Strength (Bodyweight)', details: '5.6km (3.5mi) Easy run.'},
+                { day: 'Thu', type: 'Easy Run', details: '5.6km (3.5mi) Easy run.'},
+                { day: 'Fri', type: 'Strength (Bodyweight)', details: '5.6km (3.5mi) Easy run.'},
+                { day: 'Sat', type: 'Easy Run', details: '14.5km (9mi) Easy / Exploratory run.'}, // Avg of 8-10mi
                 { day: 'Sun', type: 'Rest / Active Recovery', details: 'Focus on maintenance, flexibility, and mental break.'}
             ]},
-            // Week 7: Sep 1-7, 100 km (content remains original Week 7)
-            { week: 7, phase: 'Specific Preparation', dates: 'Sep 1-7', totalKm: 100, schedule: [
+            // Week 7: Sep 1-7, 77 km
+            { week: 7, phase: 'Specific Preparation', dates: 'Sep 1-7', totalKm: 77, schedule: [
                 { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Tue', type: 'Workout', details: '20x1 min fast/1 min jog Fartlek.'},
+                { day: 'Tue', type: 'Workout', details: '12km (7.5mi) total: 20x1 min fast/1 min jog Fartlek.'}, // Estimated total for Fartlek
                 { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.'},
                 { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.'},
                 { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
                 { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
                 { day: 'Sun', type: 'Long Run', details: '32km (20mi) easy.'}
             ]},
-            // Week 8: Sep 8-14, 93 km (content moved from original Week 6)
-            { week: 8, phase: 'Specific Preparation', dates: 'Sep 8-14', totalKm: 93, schedule: [
+            // Week 8: Sep 8-14, 69 km
+            { week: 8, phase: 'Specific Preparation', dates: 'Sep 8-14', totalKm: 69, schedule: [
                 { day: 'Mon', type: 'Gym / Easy Run', details: '7km (4.3mi) easy.'},
-                { day: 'Tue', type: 'Workout', details: '6x1k @ LT2 w/ 60s jog recovery.'},
+                { day: 'Tue', type: 'Workout', details: '10km (6.2mi) total: 6x1k @ LT2 w/ 60s jog recovery.'}, // Estimated total for workout
                 { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
                 { day: 'Thu', type: 'Easy Run', details: '9km (5.6mi) easy.'},
                 { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
                 { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
                 { day: 'Sun', type: 'Long Run', details: '29km (18mi) easy.'}
             ]},
-            // Week 9: Sep 15-21, 105 km (content remains original Week 9)
-            { week: 9, phase: 'Specific Preparation', dates: 'Sep 15-21', totalKm: 105, schedule: [
+            // Week 9: Sep 15-21, 82 km
+            { week: 9, phase: 'Specific Preparation', dates: 'Sep 15-21', totalKm: 82, schedule: [
                 { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Tue', type: 'Workout', details: '3x2 mi @ HM pace w/ 5 min jog recovery.'},
+                { day: 'Tue', type: 'Workout', details: '14km (8.7mi) total: 3x2 mi @ HM pace w/ 5 min jog recovery.'}, // Estimated total for workout
                 { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.'},
                 { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.'},
                 { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
                 { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
                 { day: 'Sun', type: 'Long Run', details: '35km (22mi) easy w/ 5km (3mi) @ MP at end.'}
             ]},
-            // Week 10: Sep 22-28, 113 km (content remains original Week 10)
-            { week: 10, phase: 'Peak Performance', dates: 'Sep 22-28', totalKm: 113, schedule: [
+            // Week 10: Sep 22-28, 79 km
+            { week: 10, phase: 'Peak Performance', dates: 'Sep 22-28', totalKm: 79, schedule: [
                 { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.'},
-                { day: 'Tue', type: 'Workout', details: '10k @ LT2 pace (continuous).'},
+                { day: 'Tue', type: 'Workout', details: '14km (8.7mi) total: 10k @ LT2 pace (continuous).'}, // Estimated total for workout
                 { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.'},
                 { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.'},
                 { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
                 { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
                 { day: 'Sun', type: 'Long Run', details: '32km (20mi) with 10-13km (6-8mi) @ MP.'}
             ]},
-            // Week 11: Sep 29 - Oct 5, 72 km (content remains original Week 11)
-            { week: 11, phase: 'Taper & Race', dates: 'Sep 29 - Oct 5', totalKm: 72, schedule: [
+            // Week 11: Sep 29 - Oct 5, 43 km
+            { week: 11, phase: 'Taper & Race', dates: 'Sep 29 - Oct 5', totalKm: 43, schedule: [
                 { day: 'Mon', type: 'Strength (Maintenance)', details: '5km (3.1mi) easy run.'},
-                { day: 'Tue', type: 'Workout', details: '3x1 mile @ MP w/ 400m jog.'},
+                { day: 'Tue', type: 'Workout', details: '9km (5.6mi) total: 3x1 mile @ MP w/ 400m jog.'}, // Estimated total for workout
                 { day: 'Wed', type: 'Strength (Maintenance)', details: '4km (2.5mi) easy run.'},
                 { day: 'Thu', type: 'Easy Run', details: '6km (3.7mi) easy.'},
                 { day: 'Fri', type: 'Strength (Maintenance)', details: '3km (1.8mi) easy run.'},
                 { day: 'Sat', type: 'Easy Run', details: '16km (10mi) easy.'},
                 { day: 'Sun', type: 'Rest', details: 'Full rest day.'}
             ]},
-            // Week 12: Oct 6-12, 48 km (content remains original Week 12)
-            { week: 12, phase: 'Taper & Race', dates: 'Oct 6-12', totalKm: 48, schedule: [
+            // Week 12: Oct 6-12, 26 km (Training volume only, excludes race)
+            { week: 12, phase: 'Taper & Race', dates: 'Oct 6-12', totalKm: 26, schedule: [
                 { day: 'Mon', type: 'Rest', details: 'Full rest day.'},
-                { day: 'Tue', type: 'Workout', details: '4x800m @ 5k pace w/ 400m jog.'},
+                { day: 'Tue', type: 'Workout', details: '7km (4.3mi) total: 4x800m @ 5k pace w/ 400m jog.'}, // Estimated total for workout
                 { day: 'Wed', type: 'Easy Run', details: '5km (3.1mi) easy.'},
                 { day: 'Thu', type: 'Easy Run', details: '6km (3.7mi) easy.'},
                 { day: 'Fri', type: 'Rest', details: 'Full rest day.'},
