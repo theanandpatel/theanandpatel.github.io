@@ -803,7 +803,8 @@
             // Main scaling function for the training plan
             function getScaledTrainingPlan(targetMarathonMinutes) {
                 const baseMarathonMinutes = 170; // 2:50:00
-                const scalingFactor = targetMarathonMinutes / baseMarathonMinutes;
+                // Corrected scaling factor: higher speed (lower time) should mean higher mileage
+                const scalingFactor = baseMarathonMinutes / targetMarathonMinutes; 
 
                 // Deep copy the base plan to avoid modifying the original
                 const scaledPlan = JSON.parse(JSON.stringify(baseTrainingPlan)); 
