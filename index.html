@@ -1,204 +1,1030 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>theanandpatel &mdash; A fun little project</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub 2:50 Marathon Plan - Chicago 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The application is structured as an interactive dashboard to make a dense 12-week training schedule easy to digest. The core structure is based on three distinct training phases (Base, Peak, Taper) presented as main navigation tabs. This non-linear approach allows the user to easily jump between phases without scrolling through a long document. Within each phase, a dropdown menu lets the user select a specific week, displaying that week's schedule in a clear, day-by-day card format. This granular view prevents overwhelm. A key interactive element is a bar chart visualizing weekly training volume, which immediately communicates the progression, build-up, and taper periods. This structure was chosen over a simple linear report because it empowers the user to explore the plan at their own pace, understand the training load visually, and focus on the current week while still having easy access to the big picture. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Total weekly running distance for 12 weeks. -> Goal: Show training load progression and taper. -> Viz Method: Bar Chart (Chart.js/Canvas). -> Interaction: A toggle allows the user to switch the chart's y-axis and tooltips between kilometers and miles, personalizing the data display. A click on a bar navigates to the corresponding week's detailed plan. -> Justification: A bar chart is the most intuitive way to compare volume over time and visually reinforces the plan's structure (build, cutback, taper), making the progression clear. Click interaction enhances navigation.
+        - Report Info: Daily workout details (distance, pace, type). -> Goal: Provide clear, daily instructions. -> Presentation Method: Structured HTML cards (divs with Tailwind). -> Interaction: The content of these cards dynamically updates based on the user's selection from the phase tabs and week dropdown. Cards are shaded based on past, current, or future days. -> Justification: Cards provide a clean, organized, and scannable format for daily tasks, which is ideal for a training plan that will be referenced frequently. Shading provides visual context of progress.
+        - Report Info: Specific training paces (Easy, Marathon, Tempo, Interval). -> Goal: Define key training intensities. -> Presentation Method: Styled HTML cards in a grid layout. -> Interaction: Paces are displayed only in the selected unit (KM or MI) and dynamically update when the unit toggle is switched. A slider allows the user to set a target marathon time, which then dynamically recalculates and displays all related training paces. -> Justification: This provides an ever-present, easy-to-access reference for the user, removing ambiguity during workouts, and the unit toggle personalizes the display. The slider offers a powerful interactive tool for personalizing the pace targets based on a desired marathon finish time. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #3f3f46;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+        }
+        .nav-button.active {
+            background-color: #A67B5B;
+            color: #FFFFFF;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .day-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .day-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .pace-card {
+            background-color: #FFFFFF;
+            border: 1px solid #F3EFEA;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .past-day-card {
+            background-color: #F3F4F6; /* light gray */
+            color: #6B7280;
+        }
+        .current-day-card {
+            background-color: #FFFBEB; /* light yellow */
+            border: 2px solid #FBBF24; /* yellow border */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        /* Tab styling */
+        .tab-button {
+            padding: 10px 15px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 600;
+            color: #6B7280;
+            background-color: #E5E7EB; /* gray-200 */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-button:hover {
+            background-color: #D1D5DB; /* gray-300 */
+        }
+        .tab-button.active-tab {
+            background-color: #FFFFFF;
+            color: #A67B5B;
+            border-bottom: 2px solid #A67B5B;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+        }
+        .tab-content {
+            background-color: #FFFFFF;
+            border-radius: 0 0 8px 8px;
+            padding: 24px;
+            border: 1px solid #E5E7EB;
+            border-top: none;
+        }
+        .tab-content h3 {
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* font-semibold */
+            color: #4A4A4A;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #F3EFEA;
+            padding-bottom: 8px;
+        }
+        .tab-content h4 {
+            font-size: 1.125rem; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            color: #A67B5B;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+        .tab-content p, .tab-content ul, .tab-content table {
+            margin-bottom: 16px;
+            color: #525252;
+            line-height: 1.6;
+        }
+        .tab-content ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        .tab-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+        .tab-content th, .tab-content td {
+            border: 1px solid #E5E7EB;
+            padding: 10px;
+            text-align: left;
+        }
+        .tab-content th {
+            background-color: #F8F8F8;
+            font-weight: 600;
+            color: #4A4A4A;
+        }
+        /* Added for the toggle dot size */
+        .dot {
+            width: 20px; /* Increased size */
+            height: 20px; /* Increased size */
+            left: 2px; /* Adjusted for better visual centering */
+            top: 2px;  /* Adjusted for better visual centering */
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#4A4A4A]">Your Road to Chicago</h1>
+            <p class="text-lg md:text-xl text-[#A67B5B] mt-2">A Sub-2:50 Marathon Training Plan</p>
+        </header>
 
-    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300i,400,700" rel="stylesheet">
-    <link rel="stylesheet" href="fonts/icomoon/style.css">
-
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/magnific-popup.css">
-    <link rel="stylesheet" href="css/jquery-ui.css">
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <link rel="stylesheet" href="css/owl.theme.default.min.css">
-
-    <link rel="stylesheet" href="css/lightgallery.min.css">    
-    
-    <link rel="stylesheet" href="css/bootstrap-datepicker.css">
-
-    <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
-    
-    <link rel="stylesheet" href="css/swiper.css">
-
-    <link rel="stylesheet" href="css/aos.css">
-
-    <link rel="stylesheet" href="css/style.css">
-    
-  </head>
-  <body>
-  
-  <div class="site-wrap">
-
-    <div class="site-mobile-menu">
-      <div class="site-mobile-menu-header">
-        <div class="site-mobile-menu-close mt-3">
-          <span class="icon-close2 js-menu-toggle"></span>
-        </div>
-      </div>
-      <div class="site-mobile-menu-body"></div>
-    </div>
-    
-
-
-
-    <header class="site-navbar py-3 border-bottom" role="banner">
-
-      <div class="container-fluid">
-        <div class="row align-items-center">
-          
-          <div class="col-6 col-xl-2" data-aos="fade-down">
-            <h1 class="mb-0"><a href="index.html" class="text-grey h2 mb-0">theanandpatel</a></h1>
-          </div>
-          <div class="col-10 col-md-8 d-none d-xl-block" data-aos="fade-down">
-            <nav class="site-navigation position-relative text-right text-lg-center" role="navigation">
-
-              <ul class="site-menu js-clone-nav mx-auto d-none d-lg-block">
-                <li><a href="index.html" class ="active">Home</a></li>
-                <li class="has-children">
-                  <a href="single.html" class="text-grey">Gallery</a>
-                  <ul class="dropdown">
-                    <li><a href="#">Nature</a></li>
-                    <li><a href="#">Portrait</a></li>
-                    <li><a href="#">People</a></li>
-                    <li><a href="#">Architecture</a></li>
-                    <li><a href="#">Animals</a></li>
-                    <li><a href="#">Sports</a></li>
-                    <li><a href="#">Travel</a></li>
-                    <li class="has-children">
-                      <a href="#">Sub Menu</a>
-                      <ul class="dropdown">
-                        <li><a href="#">Menu One</a></li>
-                        <li><a href="#">Menu Two</a></li>
-                        <li><a href="#">Menu Three</a></li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-                <li><a href="services.html" class="text-grey">Services</a></li>
-                <li><a href="about.html" class="text-grey">About</a></li>
-                <li><a href="contact.html" class="text-grey">Contact</a></li>
-              </ul>
-            </nav>
-          </div>
-
-          <div class="col-6 col-xl-2 text-right" data-aos="fade-down">
-            <div class="d-none d-xl-inline-block">
-              <ul class="site-menu js-clone-nav ml-auto list-unstyled d-flex text-right mb-0" data-class="social">
-                <li>
-                  <a href="https://www.facebook.com/theanandpatel" class="pl-0 pr-3"><span class="icon-facebook"></span></a>
-                </li>
-                <li>
-                  <a href="https://www.instagram.com/theanandpatel/" class="pl-3 pr-3"><span class="icon-instagram"></span></a>
-                </li>
-                <li>
-                  <a href="https://www.youtube.com/watch?v=vO7pcOGqSLQ&t=2s" class="pl-3 pr-3"><span class="icon-youtube-play"></span></a>
-                </li>
-                <li>
-                  <a href="https://www.linkedin.com/in/theanandpatel/" class="pl-3 pr-3"><span class="icon-linkedin"></span></a>
-                </li>
-              </ul>
-            </div>
-
-            <div class="d-inline-block d-xl-none ml-md-0 mr-auto py-3" style="position: relative; top: 3px;"><a href="#" class="site-menu-toggle js-menu-toggle text-black"><span class="icon-menu h3"></span></a></div>
-
-          </div>
-
-        </div>
-      </div>
-      
-    </header>
-
-
-
-  <div class="container-fluid" data-aos="fade" data-aos-delay="500">
-    <div class="swiper-container images-carousel">
-        <div class="swiper-wrapper">
-            <div class="swiper-slide">
-              <div class="image-wrap">
-                <div class="image-info">
-                  <h2 class="mb-3">Nepal</h2>
-                  <a href="single.html" class="btn btn-outline-white py-2 px-4">More Photos</a>
+        <main>
+            <!-- Introduction & Paces Section -->
+            <section id="intro" class="mb-10 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="prose max-w-none text-gray-600">
+                    <p>This 12-week plan is designed to build on your 2:57 marathon performance and get you to the Chicago finish line in under 2 hours and 50 minutes. It's structured to be challenging yet sustainable, balancing key running sessions with your existing gym routine. We'll focus on building endurance and pace-specific fitness, with built-in recovery and a holiday-week adjustment. Listen to your body, stay consistent, and get ready for a great race on October 12th!</p>
                 </div>
-                <img src="images/img_1.jpg" alt="Image">
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div class="image-wrap">
-                <div class="image-info">
-                  <h2 class="mb-3">Australia</h2>
-                  <a href="single.html" class="btn btn-outline-white py-2 px-4">More Photos</a>
+
+                <div class="mt-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold text-[#4A4A4A]">Key Training Paces</h3>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <span>KM</span>
+                            <label for="unitToggle" class="flex items-center cursor-pointer">
+                                <div class="relative">
+                                    <input type="checkbox" id="unitToggle" class="sr-only">
+                                    <div class="block bg-gray-200 w-10 h-6 rounded-full"></div>
+                                    <div class="dot absolute bg-white rounded-full transition"></div>
+                                </div>
+                            </label>
+                            <span>MI</span>
+                        </div>
+                    </div>
+
+                    <!-- Marathon Time Slider -->
+                    <div class="mt-6 mb-4">
+                        <label for="marathonTimeSlider" class="block text-lg font-semibold text-[#4A4A4A] mb-2">
+                            Target Marathon Time: <span id="marathonTimeDisplay" class="text-[#A67B5B]">2:50:00</span>
+                        </label>
+                        <input type="range" id="marathonTimeSlider" min="150" max="360" value="170" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>2:30</span>
+                            <span>6:00</span>
+                        </div>
+                    </div>
+
+                    <div id="pace-cards-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                        <!-- Pace cards will be generated by JS -->
+                    </div>
                 </div>
-                <img src="images/img_2.jpg" alt="Image">
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div class="image-wrap">
-                <div class="image-info">
-                  <h2 class="mb-3">Japan</h2>
-                  <a href="single.html" class="btn btn-outline-white py-2 px-4">More Photos</a>
-                </div>
-                <img src="images/img_3.jpg" alt="Image">
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div class="image-wrap">
-                <div class="image-info">
-                  <h2 class="mb-3">Backyard</h2>
-                  <a href="single.html" class="btn btn-outline-white py-2 px-4">More Photos</a>
-                </div>
-                <img src="images/img_4.jpg" alt="Image">
-              </div>
-            </div>
+            </section>
             
-        <div class="swiper-pagination"></div>
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-button-next"></div>
-        <div class="swiper-scrollbar"></div>
+            <!-- Main Training Plan Section -->
+            <section id="training-plan" class="mb-10">
+                 <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <h2 class="text-2xl font-bold text-center mb-6 text-[#4A4A4A]">Training Volume Overview</h2>
+                    <div class="chart-container">
+                        <canvas id="volumeChart"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="weekly-view">
+                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+                        <div id="phase-nav" class="flex flex-wrap gap-2">
+                            <!-- Phase buttons will be generated by JS -->
+                        </div>
+                        <div>
+                            <label for="week-selector" class="sr-only">Select Week</label>
+                            <select id="week-selector" class="w-full sm:w-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#A67B5B] focus:border-[#A67B5B] block p-2.5">
+                                <!-- Week options will be generated by JS -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <h3 id="week-title" class="text-2xl font-bold text-center mb-6 text-[#4A4A4A]"></h3>
+                    <div id="daily-plan-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <!-- Daily plan cards will be generated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- New Guidance Section with Tabs -->
+            <section id="additional-guidance" class="mt-10 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold text-center mb-6 text-[#4A4A4A]">In-Depth Guidance</h2>
+                <div class="flex flex-wrap justify-center border-b border-gray-200 mb-6">
+                    <button id="tab-nutrition" class="tab-button active-tab">Nutrition & Hydration</button>
+                    <button id="tab-strength" class="tab-button">Strength Training</button>
+                    <button id="tab-race" class="tab-button">Race Day Strategy</button>
+                    <button id="tab-general" class="tab-button">General Advice</button>
+                </div>
+
+                <div id="tab-content-nutrition" class="tab-content">
+                    <h3>Optimizing Nutrition, Hydration, and Recovery</h3>
+                    <p>Optimal performance in marathon training and on race day is not solely determined by running volume and intensity; it is profoundly influenced by meticulous attention to nutrition, hydration, and recovery. These elements are the bedrock upon which physiological adaptations are built and sustained.</p>
+                    
+                    <h4>Daily Fueling Guidelines for High-Volume Training</h4>
+                    <p>Marathon training significantly elevates the body's caloric and macronutrient demands. Adequate daily fueling is essential to replenish glycogen stores, facilitate muscle repair, and maintain overall energy levels, directly combating the "gassed" feeling experienced in previous races. Endurance athletes, in particular, have distinct nutritional requirements compared to sedentary individuals or strength athletes.</p>
+                    <p>General guidelines suggest that endurance athletes should aim for:</p>
+                    <ul>
+                        <li><strong>Carbohydrates:</strong> 4-6 grams per pound of body weight (or 5-7 grams per kilogram of body weight) of high-quality carbohydrates daily. For a 70kg runner, this translates to approximately 350-490 grams of carbohydrates per day. This may necessitate adding an additional 500-800 calories or 125-200 grams of carbohydrates to the daily diet during heavy training. Excellent sources include whole grains, quinoa, fruits (fresh and dried), potatoes, beans, oats, pasta, and rice.</li>
+                        <li><strong>Protein:</strong> 0.8-1.0 grams per pound of body weight (or 1.6-1.8 grams per kilogram of body weight). For a 70kg runner, this is roughly 112-126 grams of protein per day. Protein intake should be distributed throughout the day, including a portion before bed (e.g., casein protein) to support continuous muscle repair. Lean meats (chicken, turkey, beef), fish, eggs, dairy products (milk, Greek yogurt), soy, beans, and protein powders are suitable sources.</li>
+                        <li><strong>Healthy Fats:</strong> 0.4-0.6 grams per pound of body weight daily. These are crucial for neurological recovery and reducing inflammation. Sources include salmon, flaxseed, and various nuts.</li>
+                    </ul>
+                    <p>The "gassed" feeling previously experienced, particularly during the half marathon, could be directly linked to insufficient daily fueling or inadequate intra-race nutrition. Consistent, high-quality daily carbohydrate intake is fundamental for preventing energy crashes during training and on race day. By ensuring glycogen stores are consistently topped off, the body is better prepared to handle the demands of intense workouts and long runs, thereby mitigating the risk of premature fatigue.</p>
+
+                    <h4>Race Day Nutrition and Hydration Strategy</h4>
+                    <p>Race day is not the time for experimentation. All fueling and hydration strategies should be meticulously practiced during long training runs to ensure the body is accustomed to the intake and to prevent gastrointestinal distress.</p>
+                    <ul>
+                        <li><strong>Pre-Race Meal:</strong> Consume a familiar, carbohydrate-rich meal 3-4 hours before the race. This meal should be one that has been consistently practiced before long runs. Bringing one's own preferred pre-race food is advisable.</li>
+                        <li><strong>During Race Fueling:</strong> The human body can store enough glycogen for approximately two hours of aerobic activity. For a 2:50 marathon, this means that without external fuel, the runner will be operating on depleted glycogen stores for over an hour. Therefore, consistent carbohydrate intake during the race is critical to prevent "hitting the wall." The recommendation is to consume a minimum of 30-60 grams of carbohydrates per hour, which equates to about 1.5 to 3 standard energy gels. Some individuals can tolerate up to 60 grams per hour. Practicing this intake during long runs helps determine individual tolerance and preferred fuel types (gels, chews, or real food).</li>
+                        <li><strong>During Race Hydration:</strong> Proper hydration is paramount. The American College of Sports Medicine (ACSM) recommends drinking 5 to 12 ounces of fluids every 15 to 20 minutes during exercise. For runs lasting longer than one hour or in hot conditions, sports beverages containing electrolytes (sodium, potassium, magnesium) are superior to water alone, as they help replenish losses from sweat and prevent dangerously low sodium levels. Weighing oneself before and after training runs is an effective method to determine individual sweat rates and fluid loss, guiding precise repletion needs.</li>
+                        <li><strong>Post-Race Recovery Fueling:</strong> Recovery begins immediately after the workout. Within 30-60 minutes post-run, consume a meal or snack with a 3:1 or 4:1 carbohydrate-to-protein ratio. This optimizes glycogen repletion and supports muscle repair and growth. Examples include a smoothie with banana and protein powder, or chocolate milk. Incorporating healthy fats, particularly Omega-3 fatty acids, can further help reduce inflammation and muscle damage.</li>
+                    </ul>
+
+                    <h4>Essential Recovery Techniques</h4>
+                    <p>Recovery is where the physiological adaptations from training are truly realized. Neglecting recovery can lead to accumulated fatigue, overtraining, injury, and stagnation, which could contribute to the "aggressive" feeling from previous plans and the "gassed" sensation. Recovery is not passive rest but an active process of refueling, rehydrating, and repairing the body.</p>
+                    <ul>
+                        <li><strong>Immediate Post-Workout Refueling:</strong> As detailed above, consuming carbohydrates and protein within 30-60 minutes after a run is critical for muscle repair and glycogen replenishment.</li>
+                        <li><strong>Hydration and Electrolyte Replacement:</strong> Promptly rehydrating with water and replenishing lost electrolytes (sodium, potassium, magnesium) is essential to prevent dehydration, fatigue, and cramping. Sports drinks or electrolyte tablets can aid this process.</li>
+                        <li><strong>Prioritize Deep Sleep:</strong> Adequate and deep sleep is non-negotiable for muscle repair, hormonal balance, and overall physical and mental recovery. It is during sleep that the body performs much of its repair and rebuilding processes.</li>
+                        <li><strong>Active Recovery and Gentle Movement:</strong> While immediate post-marathon recovery requires a break from running (5-7 days) and deep-tissue massage, gentle movement and active recovery (e.g., walking, swimming, yoga, elliptical) can promote blood flow and aid recovery without putting excessive strain on the body. For daily training, easy runs serve as active recovery days, facilitating adaptation without additional fatigue.</li>
+                        <li><strong>Gradual Return to Intensity:</strong> After a marathon, the return to running and strength training should be gradual, listening to the body's signals. This disciplined approach to recovery is as important as the training itself.</li>
+                    </ul>
+
+                    <h4>Key Table: Daily Nutrition Guidelines & Race Day Fueling Plan</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Guideline / Example</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Daily Nutrition Guidelines (Approx. for a 70kg Runner)</strong></td>
+                                <td></td>
+                                <td>Adjust based on individual body weight and training load.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total Calories</strong></td>
+                                <td>2000-3000 kcal base + 500-800 kcal additional on heavy training days</td>
+                                <td>To meet increased demands.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Carbohydrates</strong></td>
+                                <td>350-490g (5-7g/kg BW)</td>
+                                <td>Prioritize whole grains, fruits, vegetables, oats, rice, pasta.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protein</strong></td>
+                                <td>112-126g (1.6-1.8g/kg BW)</td>
+                                <td>Spread intake throughout the day, including before bed. Lean meats, fish, dairy, legumes.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fats</strong></td>
+                                <td>28-42g (0.4-0.6g/kg BW)</td>
+                                <td>Healthy fats from nuts, seeds, avocado, fatty fish (Omega-3s).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fluid Intake</strong></td>
+                                <td>2000-3000ml (daily) + 500-1000ml/hour of training</td>
+                                <td>Monitor urine color; weigh self before/after runs to determine sweat rate.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Race Day Fueling & Hydration Plan</strong></td>
+                                <td></td>
+                                <td>Practice all elements extensively during long training runs.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pre-Race Meal (3-4 hours prior)</strong></td>
+                                <td>Oatmeal with banana and honey, or whole-wheat toast with jam, coffee</td>
+                                <td>Familiar, high-carb, low-fiber. Practice in training.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>During Race (per hour)</strong></td>
+                                <td>30-60g Carbohydrates (e.g., 1.5-3 gels, chews, or sports drink)</td>
+                                <td>Start early (e.g., 30-45 min in), consistent intake.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>During Race Hydration (every 15-20 min)</strong></td>
+                                <td>5-12 oz sports drink (containing sodium)</td>
+                                <td>Essential for electrolyte balance and preventing dehydration.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Post-Race Recovery (within 30-60 min)</strong></td>
+                                <td>3:1 or 4:1 Carb:Protein ratio (e.g., chocolate milk, recovery smoothie)</td>
+                                <td>Replenish glycogen, repair muscles. Include healthy fats.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="tab-content-strength" class="tab-content hidden">
+                    <h3>Strategic Integration of Strength Training</h3>
+                    <p>Strength training is an indispensable component of advanced marathon preparation, offering significant benefits beyond just running.</p>
+                    
+                    <h4>Rationale for Strength Training</h4>
+                    <p>Strength training plays a vital role in boosting running performance and preventing injuries. It enhances muscle support and improves neuromuscular coordination, making the runner more efficient. Specifically, it increases muscle stiffness and refines neuromuscular coordination, enabling runners to maintain speed with lower energy expenditure. For marathoners, the focus is not on building excessive muscle mass but on developing resilient muscles, tendons, and ligaments that can withstand the repetitive impact and prolonged stress of high-volume running. It also addresses common muscular imbalances and weaknesses (e.g., in the glutes and core) that can lead to fatigue, poor form, and injury over the 26.2-mile distance.</p>
+
+                    <h4>Specific Recommendations for 3x/week Gym Sessions (Monday, Wednesday, Friday)</h4>
+                    <p>The individual's existing schedule of three gym sessions per week (Monday, Wednesday, and Friday) aligns perfectly with the recommendations for runners who train six days a week. The key is to strategically integrate these sessions to optimize the training stimulus and minimize interference with running workouts.</p>
+                    <p>When both running and strength training occur on the same day, the timing of each session is crucial. For long runs, tempo runs, or interval workouts (the "hard" running days), it is recommended to perform the run first. This ensures that the legs are fresh for the primary running stimulus, maximizing the quality and intended physiological adaptation of the key run. Conversely, on easy running days, it is often more beneficial to perform the strength training session first. This allows for a higher quality strength workout, as the muscles are not pre-fatigued from a demanding run, and the subsequent easy run can still serve its purpose of aerobic development and active recovery. By following these guidelines, strength training becomes a supportive element that enhances running performance rather than detracting from it due to accumulated fatigue.</p>
+
+                    <h4>Recommended Exercises and Progression through Training Phases</h4>
+                    <p>The strength training program should evolve throughout the training cycle, aligning with the specific demands of each phase. Emphasis should be placed on exercises that directly benefit running mechanics, injury prevention, and power generation. Focusing on core and single-leg exercises is particularly beneficial for runners.</p>
+                    <ul>
+                        <li><strong>Phase 1: Re-establishing Base (Weeks 1-3):</strong> During this initial phase, the focus should be on building foundational strength, improving balance and stability, and addressing any muscular imbalances that could predispose to injury. This involves higher volume lifting, typically in the 8-12 repetition range. Key exercises should emphasize unilateral (single-leg) movements, such as:
+                            <ul>
+                                <li>Single-Leg Calf Raises (3x10-12)</li>
+                                <li>Single-Leg Deadlifts (3x8-10)</li>
+                                <li>Single-Leg Deficit Squats (3x8-10/side)</li>
+                                <li>Dumbbell March (3x10-12/side)</li>
+                                <li>Side Plank Crunches (3x10-12/side)</li>
+                            </ul>
+                            This progression helps to create a robust and injury-resistant body from the ground up.
+                        </li>
+                        <li><strong>Phase 2: Specific Preparation (Weeks 4-9):</strong> As the running volume and intensity increase, the strength training should shift towards developing raw strength and power. This typically involves lower repetitions, in the 4-6 rep range, with heavier loads. While unilateral exercises remain beneficial, this phase can incorporate heavier bilateral lifts (e.g., squats, deadlifts) to build overall strength. The introduction of plyometrics is also recommended during this phase to improve power and explosiveness, which directly translates to improved running economy. The strategic placement of these sessions (e.g., later in the day after tempo or interval runs) ensures that the primary running workouts are performed with fresh legs.</li>
+                        <li><strong>Phase 3: Peak Performance & Taper (Weeks 10-14):</strong> During the peak and taper phases, the volume of strength training should be progressively reduced. This involves decreasing the number of sets per exercise and potentially reducing the frequency to 1-2 sessions per week. The primary objective is to maintain strength and mobility without introducing additional fatigue that could compromise running performance. All strength work should be forgone entirely in the 72 hours leading up to the race to ensure maximal freshness. This reduction is a deliberate part of the tapering process, allowing the body to fully recover and consolidate its fitness gains.</li>
+                    </ul>
+
+                    <h4>Key Table: Strength Training Schedule & Key Exercises</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Training Phase</th>
+                                <th>Frequency</th>
+                                <th>Focus / Rep Range</th>
+                                <th>Timing (relative to run)</th>
+                                <th>Monday (e.g., Lower Body)</th>
+                                <th>Wednesday (e.g., Core & Glutes)</th>
+                                <th>Friday (e.g., Full Body / Plyometrics)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Phase 1: Base (Weeks 1-3)</strong></td>
+                                <td>3x/week</td>
+                                <td>Foundational Strength, Balance, Unilateral (8-12 reps)</td>
+                                <td>Lift after easy run</td>
+                                <td>Single-Leg Calf Raises (3x10-12), Single-Leg Deadlifts (3x8-10)</td>
+                                <td>Side Plank Crunches (3x10-12/side), Glute Bridges (3x12-15)</td>
+                                <td>Single-Leg Deficit Squat (3x8-10/side), Dumbbell March (3x10-12/side)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Phase 2: Build (Weeks 4-9)</strong></td>
+                                <td>3x/week</td>
+                                <td>Strength, Power, Bilateral (4-6 reps), Plyometrics</td>
+                                <td>Lift after hard run (Tue/Thu) or before easy run (Mon/Wed/Fri)</td>
+                                <td>Barbell Squats (3x4-6), Romanian Deadlifts (3x4-6)</td>
+                                <td>Plank variations (3x60s), Bird-Dog (3x10/side), Cable Pull-Throughs (3x8-10)</td>
+                                <td>Box Jumps (3x5-8), Medicine Ball Slams (3x8-10), Lunges (3x6-8/side)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Phase 3: Peak/Taper (Weeks 10-14)</strong></td>
+                                <td>1-2x/week (reduced sets)</td>
+                                <td>Maintenance, Mobility (reduced reps/sets)</td>
+                                <td>Lift after easy run, or on rest day</td>
+                                <td>Light Goblet Squats (2x8), Single-Leg Calf Raises (2x10)</td>
+                                <td>Light Core Circuit (2-3 exercises, 2x10-15)</td>
+                                <td>Bodyweight Lunges (2x10/side), Mobility Drills</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Race Week (Week 14)</strong></td>
+                                <td>0</td>
+                                <td>None</td>
+                                <td>Forgo 72 hours pre-race</td>
+                                <td>Rest</td>
+                                <td>Rest</td>
+                                <td>Rest</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="tab-content-race" class="tab-content hidden">
+                    <h3>Race Day Execution: Chicago Marathon Strategy</h3>
+                    <p>Optimal race day execution is the culmination of weeks of dedicated training. A well-conceived strategy can make the difference between achieving a goal and falling short.</p>
+
+                    <h4>Pacing Strategy</h4>
+                    <p>For a sub 2:50 marathon, precise and disciplined pacing is paramount. The most effective strategies involve either "negative splits" or "even splits".</p>
+                    <ul>
+                        <li><strong>Negative Splits:</strong> This involves running the second half of the race faster than the first half. This strategy allows the body to warm up, conserve energy in the early miles, and finish strong. It is often considered the most efficient way to achieve an optimal marathon performance.</li>
+                        <li><strong>Even Splits:</strong> This entails maintaining a consistent pace throughout the entire race. While challenging, it is a reliable alternative to negative splits and avoids the pitfalls of starting too fast.</li>
+                    </ul>
+                    <p>Conversely, the strategy of "banking time" by starting aggressively fast and hoping to hold on is strongly discouraged. This approach almost invariably leads to hitting "the wall" around miles 20-22, resulting in a significant slowdown or even walking. The runner's previous experience of feeling "gassed" during the half marathon serves as a direct warning against starting too fast in the marathon. A disciplined, conservative start is crucial for a sub 2:50 attempt, ensuring that energy reserves are managed effectively to maintain pace through the later stages of the race. The objective is to finish strong, maintaining momentum and form, rather than experiencing a dramatic fade.</p>
+
+                    <h4>Pre-Race Routine and Mental Preparation</h4>
+                    <p>Race day success extends beyond physical fitness; it encompasses meticulous mental preparation and a consistent pre-race routine to minimize variables and reduce anxiety.</p>
+                    <ul>
+                        <li><strong>Morning Routine Practice:</strong> It is highly recommended to practice the race morning routine during training, especially before long runs. This includes waking up at the projected race start time and consuming the planned pre-race meal. This familiarity helps to reduce stress and ensures the body is accustomed to performing at that time of day.</li>
+                        <li><strong>Gear and Shoes:</strong> Avoid introducing any new gear, shoes, socks, or apparel on race day. All items should be thoroughly tested during training to prevent chafing, blisters, or discomfort. Shoes should be well-worn but not "dead".</li>
+                        <li><strong>Mental Visualization:</strong> Visualize success by picturing oneself crossing the finish line strongly. Setting mini-goals throughout the race (e.g., reaching specific aid stations, maintaining pace for a certain number of miles) can help break down the daunting distance and maintain focus.</li>
+                        <li><strong>Flexibility and Adaptability:</strong> While a plan is essential, maintaining a degree of flexibility on race day is important. External factors such as weather conditions, course variations, or unexpected physical sensations may necessitate minor adjustments to the pacing strategy. The ability to adapt and respond calmly to challenges is a hallmark of an experienced marathoner.</li>
+                    </ul>
+                </div>
+
+                <div id="tab-content-general" class="tab-content hidden">
+                    <h3>General Advice & Ongoing Development</h3>
+                    <p>Achieving a sub 2:50 marathon at the Chicago Marathon on October 12th is a demanding but entirely feasible objective for this experienced runner. The strategic framework presented, rooted in a periodized, 80/20 training philosophy, provides a robust pathway for success. Key to this endeavor will be the consistent execution of the detailed weekly plan, a disciplined approach to recovery, and the strategic integration of strength training and holiday adjustments. The plan specifically addresses previous concerns about "aggressive" training by emphasizing sustainable progression and ample recovery, thereby preventing the "gassed" sensation experienced in past races.</p>
+
+                    <h4>Importance of Flexibility and Listening to Your Body</h4>
+                    <p>While this report provides a comprehensive and detailed training roadmap, it is crucial to recognize that it serves as a guide, not an immutable dogma. The individual's past experience with "aggressive" training plans underscores the importance of self-awareness and flexibility throughout the training cycle. The perception of "aggressive" is subjective; what one runner tolerates, another may find overwhelming. Therefore, the runner must be empowered to listen to their body and make real-time adjustments based on how they feel. For instance, if excessive fatigue is present, a planned tempo run might be converted into an easy run, or an extra recovery day might be taken. Improvement in endurance sports occurs as much during rest as it does during the run. This adaptive approach is a sign of intelligent training, not weakness, and is fundamental for preventing overtraining, injury, and burnout, ultimately leading to more consistent and effective training in the long term.</p>
+
+                    <h4>Recommendations for Continued Progress and Considering Professional Coaching</h4>
+                    <p>For continued progression beyond this specific goal, or for highly personalized and dynamic guidance, considering professional coaching is a valuable next step. While this report provides a scientifically-backed and detailed framework, a dedicated human coach offers several unique advantages:</p>
+                    <ul>
+                        <li><strong>Customized Adaptation:</strong> A coach can provide real-time adjustments to the training plan based on daily feedback, physiological responses, and unforeseen circumstances such as illness, stress, or travel. This level of dynamic adaptation is difficult for a static plan to replicate.</li>
+                        <li><strong>Expert Interpretation:</strong> Experienced coaches can interpret subtle body signals and training data, providing nuanced guidance that optimizes performance and minimizes injury risk.</li>
+                        <li><strong>Accountability and Motivation:</strong> A coach offers consistent accountability and psychological support, which can be invaluable for maintaining motivation and adherence during challenging training blocks.</li>
+                        <li><strong>Long-Term Development:</strong> For an ambitious runner consistently pushing personal limits, a coach can help develop a long-term athletic trajectory, ensuring sustainable growth and preventing plateaus or chronic issues.</li>
+                    </ul>
+                    <p>Reputable coaching services, such as RunDoyen or Luke Humphrey Running, offer access to highly accomplished coaches, including Olympians and national champions, who work with runners of all levels. This investment can provide the personalized oversight necessary for continued high-level performance and injury prevention, serving as a natural evolution for a runner dedicated to maximizing their potential.</p>
+                </div>
+            </section>
+        </main>
     </div>
-  </div>
 
-  <div class="footer py-4">
-    <div class="container-fluid">
-      <p>
-      <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-      Copyright &copy;<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank" >Colorlib</a>
-      <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-      </p>
-    </div>
-  </div>
+    <script>
+        const MILE_CONVERSION = 0.621371;
 
-    
+        // Make paces a mutable variable
+        let paces = {
+            easy: { km: "5:30-6:00", mi: "8:50-9:40" },
+            marathon: { km: "4:02", mi: "6:29" },
+            tempo: { km: "3:55-4:00", mi: "6:20-6:25" },
+            interval: { km: "3:40-3:50", mi: "5:55-6:10" }
+        };
 
-    
-    
-  </div>
+        const trainingPlan = [
+            // Week 1: Jul 21-27, 61 km
+            { week: 1, phase: 'Base Building', dates: 'Jul 21-27', totalKm: 61, schedule: [
+                { day: 'Mon', type: 'Gym / Rest', details: 'Focus on strength training or take a full rest day.'},
+                { day: 'Tue', type: 'Easy Run', details: '8km (5mi) at an easy, conversational pace.'},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
+                { day: 'Thu', type: 'Intervals', details: '8km (5mi) total: 2k WU, 6x400m @ I-Pace w/ 400m jog recovery, 2k CD.'},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) at an easy pace.'},
+                { day: 'Sun', type: 'Long Run', details: '16km (10mi) at a steady, easy pace.'}
+            ]},
+            // Week 2: Jul 28 - Aug 3, 68 km
+            { week: 2, phase: 'Base Building', dates: 'Jul 28 - Aug 3', totalKm: 68, schedule: [
+                { day: 'Mon', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
+                { day: 'Tue', type: 'Tempo Run', details: '10km (6.2mi) total: 2k WU, 5k @ T-Pace, 3k CD.'},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
+                { day: 'Thu', type: 'Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Sun', type: 'Long Run', details: '18km (11.2mi) at a steady, easy pace.'}
+            ]},
+            // Week 3: Aug 4-10, 74 km
+            { week: 3, phase: 'Base Building', dates: 'Aug 4-10', totalKm: 74, schedule: [
+                { day: 'Mon', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
+                { day: 'Tue', type: 'Intervals', details: '10km (6.2mi) total: 2k WU, 8x600m @ I-Pace w/ 400m jog recovery, 2k CD.'},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
+                { day: 'Thu', type: 'Easy Run + Strides', details: '10km (6.2mi) easy, finish with 6x100m strides.'},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Sun', type: 'Long Run', details: '21km (13.1mi) at a steady, easy pace.'}
+            ]},
+            // Week 4: Aug 11-17, 80 km
+            { week: 4, phase: 'Specific Preparation', dates: 'Aug 11-17', totalKm: 80, schedule: [
+                { day: 'Mon', type: 'Gym / Rest', details: 'Focus on strength training or take a full rest day.'},
+                { day: 'Tue', type: 'Workout', details: '4x1200m @ 5k pace w/ 4min jog recovery.'},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
+                { day: 'Thu', type: 'Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Sun', type: 'Long Run', details: '24km (15mi) easy.'}
+            ]},
+            // Week 5: Aug 18-24, 87 km
+            { week: 5, phase: 'Specific Preparation', dates: 'Aug 18-24', totalKm: 87, schedule: [
+                { day: 'Mon', type: 'Gym / Easy Run', details: '7km (4.3mi) easy.'},
+                { day: 'Tue', type: 'Workout', details: '5 mi Tempo (1 mi warm-up, 3 mi @ LT2 pace, 1 mi cool-down).'},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
+                { day: 'Thu', type: 'Easy Run', details: '9km (5.6mi) easy.'},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Sun', type: 'Long Run', details: '26km (16mi) easy.'}
+            ]},
+            // Week 6 (Holiday): Aug 25-31, 64 km (content moved from original Week 8)
+            { week: 6, phase: 'Specific Preparation (Holiday)', dates: 'Aug 25-31', totalKm: 64, schedule: [
+                { day: 'Mon', type: 'Strength (Bodyweight)', details: '3-4 mi Easy run.'},
+                { day: 'Tue', type: 'Easy Run', details: '3-4 mi Easy run.'},
+                { day: 'Wed', type: 'Strength (Bodyweight)', details: '3-4 mi Easy run.'},
+                { day: 'Thu', type: 'Easy Run', details: '3-4 mi Easy run.'},
+                { day: 'Fri', type: 'Strength (Bodyweight)', details: '3-4 mi Easy run.'},
+                { day: 'Sat', type: 'Easy Run', details: '8-10 mi Easy / Exploratory run.'},
+                { day: 'Sun', type: 'Rest / Active Recovery', details: 'Focus on maintenance, flexibility, and mental break.'}
+            ]},
+            // Week 7: Sep 1-7, 100 km (content remains original Week 7)
+            { week: 7, phase: 'Specific Preparation', dates: 'Sep 1-7', totalKm: 100, schedule: [
+                { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Tue', type: 'Workout', details: '20x1 min fast/1 min jog Fartlek.'},
+                { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.'},
+                { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.'},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Sun', type: 'Long Run', details: '32km (20mi) easy.'}
+            ]},
+            // Week 8: Sep 8-14, 93 km (content moved from original Week 6)
+            { week: 8, phase: 'Specific Preparation', dates: 'Sep 8-14', totalKm: 93, schedule: [
+                { day: 'Mon', type: 'Gym / Easy Run', details: '7km (4.3mi) easy.'},
+                { day: 'Tue', type: 'Workout', details: '6x1k @ LT2 w/ 60s jog recovery.'},
+                { day: 'Wed', type: 'Gym / Recovery', details: '6km (3.7mi) very slow recovery run.'},
+                { day: 'Thu', type: 'Easy Run', details: '9km (5.6mi) easy.'},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Sun', type: 'Long Run', details: '29km (18mi) easy.'}
+            ]},
+            // Week 9: Sep 15-21, 105 km (content remains original Week 9)
+            { week: 9, phase: 'Specific Preparation', dates: 'Sep 15-21', totalKm: 105, schedule: [
+                { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Tue', type: 'Workout', details: '3x2 mi @ HM pace w/ 5 min jog recovery.'},
+                { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.'},
+                { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.'},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Sun', type: 'Long Run', details: '35km (22mi) easy w/ 5km (3mi) @ MP at end.'}
+            ]},
+            // Week 10: Sep 22-28, 113 km (content remains original Week 10)
+            { week: 10, phase: 'Peak Performance', dates: 'Sep 22-28', totalKm: 113, schedule: [
+                { day: 'Mon', type: 'Gym / Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Tue', type: 'Workout', details: '10k @ LT2 pace (continuous).'},
+                { day: 'Wed', type: 'Gym / Recovery', details: '7km (4.3mi) very slow recovery run.'},
+                { day: 'Thu', type: 'Easy Run', details: '10km (6.2mi) easy.'},
+                { day: 'Fri', type: 'Gym / Rest', details: 'Final gym session of the week or rest.'},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy.'},
+                { day: 'Sun', type: 'Long Run', details: '32km (20mi) with 10-13km (6-8mi) @ MP.'}
+            ]},
+            // Week 11: Sep 29 - Oct 5, 72 km (content remains original Week 11)
+            { week: 11, phase: 'Taper & Race', dates: 'Sep 29 - Oct 5', totalKm: 72, schedule: [
+                { day: 'Mon', type: 'Strength (Maintenance)', details: '5km (3.1mi) easy run.'},
+                { day: 'Tue', type: 'Workout', details: '3x1 mile @ MP w/ 400m jog.'},
+                { day: 'Wed', type: 'Strength (Maintenance)', details: '4km (2.5mi) easy run.'},
+                { day: 'Thu', type: 'Easy Run', details: '6km (3.7mi) easy.'},
+                { day: 'Fri', type: 'Strength (Maintenance)', details: '3km (1.8mi) easy run.'},
+                { day: 'Sat', type: 'Easy Run', details: '16km (10mi) easy.'},
+                { day: 'Sun', type: 'Rest', details: 'Full rest day.'}
+            ]},
+            // Week 12: Oct 6-12, 48 km (content remains original Week 12)
+            { week: 12, phase: 'Taper & Race', dates: 'Oct 6-12', totalKm: 48, schedule: [
+                { day: 'Mon', type: 'Rest', details: 'Full rest day.'},
+                { day: 'Tue', type: 'Workout', details: '4x800m @ 5k pace w/ 400m jog.'},
+                { day: 'Wed', type: 'Easy Run', details: '5km (3.1mi) easy.'},
+                { day: 'Thu', type: 'Easy Run', details: '6km (3.7mi) easy.'},
+                { day: 'Fri', type: 'Rest', details: 'Full rest day.'},
+                { day: 'Sat', type: 'Easy Run', details: '8km (5mi) easy shakeout run.'},
+                { day: 'Sun', type: 'RACE DAY', details: 'CHICAGO MARATHON! Go for Sub 2:50!'}
+            ]}
+        ];
 
-  <script src="js/jquery-3.3.1.min.js"></script>
-  <script src="js/jquery-migrate-3.0.1.min.js"></script>
-  <script src="js/jquery-ui.js"></script>
-  <script src="js/popper.min.js"></script>
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/owl.carousel.min.js"></script>
-  <script src="js/jquery.stellar.min.js"></script>
-  <script src="js/jquery.countdown.min.js"></script>
-  <script src="js/jquery.magnific-popup.min.js"></script>
-  <script src="js/bootstrap-datepicker.min.js"></script>
-  <script src="js/swiper.min.js"></script>
-  <script src="js/aos.js"></script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const unitToggle = document.getElementById('unitToggle');
+            const paceCardsContainer = document.getElementById('pace-cards-container');
+            const phaseNav = document.getElementById('phase-nav');
+            const weekSelector = document.getElementById('week-selector');
+            const dailyPlanContainer = document.getElementById('daily-plan-container');
+            const weekTitle = document.getElementById('week-title');
+            const chartCanvas = document.getElementById('volumeChart');
+            const marathonTimeSlider = document.getElementById('marathonTimeSlider');
+            const marathonTimeDisplay = document.getElementById('marathonTimeDisplay');
 
-  <script src="js/picturefill.min.js"></script>
-  <script src="js/lightgallery-all.min.js"></script>
-  <script src="js/jquery.mousewheel.min.js"></script>
+            let isMiles = false;
+            let currentPhase = 'Base Building';
+            let volumeChart;
 
-  <script src="js/main.js"></script>
-  
-  <script>
-    $(document).ready(function(){
-      $('#lightgallery').lightGallery();
-    });
-  </script>
-    
-  </body>
+            const phases = [...new Set(trainingPlan.map(w => w.phase))];
+
+            // Function to convert total minutes to H:MM:SS format
+            function formatMinutesToHMS(totalMinutes) {
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = Math.floor(totalMinutes % 60);
+                return `${hours.toString().padStart(1, '0')}:${minutes.toString().padStart(2, '0')}:00`;
+            }
+
+            // Function to convert seconds per unit to MM:SS format
+            function formatSecondsToMMSS(totalSeconds) {
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = Math.round(totalSeconds % 60);
+                return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            // Function to calculate all paces based on target marathon time in minutes
+            function calculatePaces(targetMarathonMinutes) {
+                const totalMarathonSeconds = targetMarathonMinutes * 60;
+
+                // Calculate target Marathon Pace in seconds per KM and per Mile
+                const mpSecPerKm = totalMarathonSeconds / 42.195;
+                const mpSecPerMile = totalMarathonSeconds / 26.219;
+
+                // Define pace differentials in seconds (relative to MP)
+                // These are typical relationships, can be fine-tuned
+                const easyDiffKm = 47; // ~1:15/mile slower = 47s/km slower
+                const tempoDiffKm = -9; // ~0:15/mile faster = 9s/km faster
+                const intervalDiffKm = -22; // ~0:35/mile faster = 22s/km faster
+
+                const easyDiffMile = 75; // 1:15/mile slower
+                const tempoDiffMile = -15; // 0:15/mile faster
+                const intervalDiffMile = -35; // 0:35/mile faster
+
+                return {
+                    marathon: {
+                        km: formatSecondsToMMSS(mpSecPerKm),
+                        mi: formatSecondsToMMSS(mpSecPerMile)
+                    },
+                    easy: {
+                        km: formatSecondsToMMSS(mpSecPerKm + easyDiffKm),
+                        mi: formatSecondsToMMSS(mpSecPerMile + easyDiffMile)
+                    },
+                    tempo: {
+                        km: formatSecondsToMMSS(mpSecPerKm + tempoDiffKm),
+                        mi: formatSecondsToMMSS(mpSecPerMile + tempoDiffMile)
+                    },
+                    interval: {
+                        km: formatSecondsToMMSS(mpSecPerKm + intervalDiffKm),
+                        mi: formatSecondsToMMSS(mpSecPerMile + intervalDiffMile)
+                    }
+                };
+            }
+
+            // Helper to parse date strings like "Jul 21-27"
+            function parseDateRange(dateRange, year) {
+                const months = {
+                    'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                    'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+                };
+
+                const parts = dateRange.split(' - ');
+                const startParts = parts[0].split(' '); // e.g., ['Jul', '21']
+                const startMonth = months[startParts[0]];
+                const startDay = parseInt(startParts[1]);
+
+                let startDate = new Date(year, startMonth, startDay);
+                startDate.setHours(0, 0, 0, 0);
+
+                let endDate;
+                if (parts.length > 1) {
+                    const endParts = parts[1].split(' ');
+                    let endMonth = months[endParts[0]] !== undefined ? months[endParts[0]] : startMonth; // Use startMonth if end month not explicitly provided
+                    let endDay = parseInt(endParts[endParts.length - 1]); // Get last part as day
+
+                    endDate = new Date(year, endMonth, endDay);
+                    endDate.setHours(0, 0, 0, 0);
+
+                    // Adjust year if month crosses year boundary (e.g., Dec to Jan)
+                    if (startDate.getMonth() > endDate.getMonth()) {
+                        endDate.setFullYear(year + 1);
+                    }
+                } else {
+                    endDate = new Date(startDate); // Single day range
+                }
+                return { startDate, endDate };
+            }
+
+            function getRelativeWeekStatus(weekData) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Normalize today to start of day
+
+                const currentYear = today.getFullYear();
+                const { startDate, endDate } = parseDateRange(weekData.dates, currentYear);
+
+                if (today > endDate) {
+                    return 'past';
+                } else if (today >= startDate && today <= endDate) {
+                    return 'current';
+                } else {
+                    return 'future';
+                }
+            }
+
+            function getRelativeDayStatus(weekData, dayIndex) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Normalize today to start of day
+
+                const currentYear = today.getFullYear();
+                const { startDate } = parseDateRange(weekData.dates, currentYear);
+
+                // IMPORTANT: Align daysOfWeek with Date.prototype.getDay() (0=Sun, 1=Mon, ..., 6=Sat)
+                const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                const planDayName = weekData.schedule[dayIndex].day;
+                const planDayOfWeekIndex = daysOfWeek.indexOf(planDayName); 
+
+                // Calculate the actual date of the plan day
+                const planDate = new Date(startDate);
+                const startDayOfWeekIndex = startDate.getDay(); // 0=Sun, 1=Mon, etc.
+
+                // Calculate the difference in days to add to startDate to get to planDayName's date within that week
+                let daysToAdd = planDayOfWeekIndex - startDayOfWeekIndex;
+                if (daysToAdd < 0) { // If the planDayName is earlier in the week than startDate's day, add 7 days
+                    daysToAdd += 7;
+                }
+                planDate.setDate(startDate.getDate() + daysToAdd);
+                planDate.setHours(0, 0, 0, 0); // Normalize to start of day
+
+                if (today > planDate) {
+                    return 'past';
+                } else if (today.getTime() === planDate.getTime()) {
+                    return 'current';
+                } else {
+                    return 'future';
+                }
+            }
+
+            function renderPaceCards() {
+                paceCardsContainer.innerHTML = '';
+                Object.entries(paces).forEach(([name, values]) => {
+                    const paceValue = isMiles ? values.mi : values.km;
+                    const unit = isMiles ? 'min/mi' : 'min/km';
+                    const card = `
+                        <div class="pace-card rounded-lg p-4 shadow-sm">
+                            <h4 class="font-semibold capitalize text-gray-700">${name} Pace</h4>
+                            <p class="text-2xl font-bold text-[#A67B5B] mt-1">${paceValue}</p>
+                            <p class="text-xs text-gray-500">${unit}</p>
+                        </div>
+                    `;
+                    paceCardsContainer.innerHTML += card;
+                });
+            }
+
+            function renderPhaseNav() {
+                phaseNav.innerHTML = '';
+                phases.forEach(phase => {
+                    const button = document.createElement('button');
+                    button.textContent = phase;
+                    button.className = `nav-button px-4 py-2 rounded-lg text-sm font-medium ${phase === currentPhase ? 'active' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`;
+                    button.addEventListener('click', () => {
+                        currentPhase = phase;
+                        renderPhaseNav();
+                        renderWeekSelector();
+                        const firstWeekOfPhase = trainingPlan.find(w => w.phase === currentPhase).week;
+                        renderWeekPlan(firstWeekOfPhase);
+                    });
+                    phaseNav.appendChild(button);
+                });
+            }
+
+            function renderWeekSelector() {
+                weekSelector.innerHTML = '';
+                trainingPlan
+                    .filter(w => w.phase === currentPhase)
+                    .forEach(weekData => {
+                        const option = document.createElement('option');
+                        option.value = weekData.week;
+                        option.textContent = `Week ${weekData.week} (${weekData.dates})`;
+                        weekSelector.appendChild(option);
+                    });
+            }
+
+            function renderWeekPlan(weekNumber) {
+                const weekData = trainingPlan.find(w => w.week === parseInt(weekNumber));
+                if (!weekData) return;
+
+                weekTitle.textContent = `Week ${weekData.week}: ${weekData.phase}`;
+                dailyPlanContainer.innerHTML = '';
+                weekData.schedule.forEach((dayData, index) => {
+                    const tooltipText = dayData.day === 'Sun' && weekData.week === 12 
+                        ? 'Trust your training. Stick to the plan. You\'ve got this!' 
+                        : 'Remember to warm up before and cool down after each run.';
+                    
+                    const dayStatus = getRelativeDayStatus(weekData, index);
+                    let cardClasses = "day-card bg-white rounded-lg p-4 border border-gray-100 shadow-sm flex flex-col";
+                    if (dayStatus === 'past') {
+                        cardClasses += ' past-day-card';
+                    } else if (dayStatus === 'current') {
+                        cardClasses += ' current-day-card';
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = cardClasses;
+                    card.innerHTML = `
+                        <div class="flex justify-between items-baseline">
+                            <h4 class="font-bold text-lg text-[#4A4A4A]">${dayData.day}</h4>
+                            <div class="tooltip">
+                                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">${dayData.type}</span>
+                                <span class="tooltiptext">${tooltipText}</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mt-2 text-sm">${dayData.details}</p>
+                    `;
+                    dailyPlanContainer.appendChild(card);
+                });
+                weekSelector.value = weekNumber;
+            }
+
+            function renderChart() {
+                const labels = trainingPlan.map(w => `W${w.week}`);
+                const data = trainingPlan.map(w => isMiles ? (w.totalKm * MILE_CONVERSION).toFixed(1) : w.totalKm);
+                const unit = isMiles ? 'Miles' : 'Kilometers';
+
+                const backgroundColors = trainingPlan.map(w => {
+                    const status = getRelativeWeekStatus(w);
+                    if (status === 'past') {
+                        return 'rgba(209, 213, 219, 0.6)'; // Tailwind gray-300
+                    } else if (status === 'current') {
+                        return 'rgba(251, 191, 36, 0.8)'; // Tailwind yellow-500
+                    } else {
+                        return 'rgba(166, 123, 91, 0.6)'; // Original plan color
+                    }
+                });
+                const borderColors = trainingPlan.map(w => {
+                    const status = getRelativeWeekStatus(w);
+                    if (status === 'past') {
+                        return 'rgba(156, 163, 175, 1)'; // Tailwind gray-400
+                    } else if (status === 'current') {
+                        return 'rgba(245, 158, 11, 1)'; // Tailwind yellow-600
+                    } else {
+                        return 'rgba(166, 123, 91, 1)'; // Original plan color
+                    }
+                });
+
+                const chartData = {
+                    labels: labels,
+                    datasets: [{
+                        label: `Weekly Volume (${unit})`,
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1,
+                        borderRadius: 4,
+                    }]
+                };
+
+                if (volumeChart) {
+                    volumeChart.destroy();
+                }
+
+                volumeChart = new Chart(chartCanvas, {
+                    type: 'bar',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return ` Volume: ${context.parsed.y} ${unit}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: `Total Weekly Volume (${unit})`
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Training Week'
+                                }
+                            }
+                        },
+                        onClick: (event, elements) => {
+                            if (elements.length > 0) {
+                                const clickedElementIndex = elements[0].index;
+                                const weekNumber = clickedElementIndex + 1; // Weeks are 1-indexed
+                                const clickedWeekData = trainingPlan.find(w => w.week === weekNumber);
+                                if (clickedWeekData) {
+                                    currentPhase = clickedWeekData.phase;
+                                    renderPhaseNav();
+                                    renderWeekSelector();
+                                    renderWeekPlan(weekNumber);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            unitToggle.addEventListener('change', () => {
+                isMiles = unitToggle.checked;
+                const dot = unitToggle.nextElementSibling.querySelector('.dot');
+                if(isMiles) {
+                    dot.style.transform = 'translateX(16px)'; // Adjusted for 20px dot in 40px track
+                } else {
+                    dot.style.transform = 'translateX(0)';
+                }
+                renderPaceCards();
+                renderChart();
+            });
+
+            marathonTimeSlider.addEventListener('input', () => {
+                const totalMinutes = parseInt(marathonTimeSlider.value);
+                marathonTimeDisplay.textContent = formatMinutesToHMS(totalMinutes);
+                paces = calculatePaces(totalMinutes); // Update the global paces object
+                renderPaceCards(); // Re-render pace cards with new values
+            });
+
+            weekSelector.addEventListener('change', (e) => {
+                renderWeekPlan(e.target.value);
+            });
+
+            // Tab functionality
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Deactivate all buttons and hide all content
+                    tabButtons.forEach(btn => btn.classList.remove('active-tab'));
+                    tabContents.forEach(content => content.classList.add('hidden'));
+
+                    // Activate clicked button
+                    button.classList.add('active-tab');
+
+                    // Show corresponding content
+                    const targetId = button.id.replace('tab-', 'tab-content-');
+                    document.getElementById(targetId).classList.remove('hidden');
+                });
+            });
+
+
+            // Determine current week and initialize
+            function initializeApp() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                let currentWeekNumber = 1; // Default to week 1
+
+                for (const weekData of trainingPlan) {
+                    const currentYear = today.getFullYear();
+                    const { startDate, endDate } = parseDateRange(weekData.dates, currentYear);
+                    if (today >= startDate && today <= endDate) {
+                        currentWeekNumber = weekData.week;
+                        break;
+                    }
+                    // If today is after the end date of the last week, default to the last week
+                    if (weekData.week === trainingPlan.length && today > endDate) {
+                        currentWeekNumber = trainingPlan.length;
+                        break;
+                    }
+                }
+                
+                const initialWeekData = trainingPlan.find(w => w.week === currentWeekNumber);
+                if (initialWeekData) {
+                    currentPhase = initialWeekData.phase;
+                }
+
+                // Initialize paces based on default slider value (2:50)
+                paces = calculatePaces(parseInt(marathonTimeSlider.value));
+                marathonTimeDisplay.textContent = formatMinutesToHMS(parseInt(marathonTimeSlider.value));
+
+
+                renderPaceCards();
+                renderPhaseNav();
+                renderWeekSelector();
+                renderWeekPlan(currentWeekNumber);
+                renderChart();
+            }
+
+            initializeApp();
+        });
+
+    </script>
+</body>
 </html>
